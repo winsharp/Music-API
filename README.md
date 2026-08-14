@@ -13,12 +13,25 @@ The React Compiler is enabled on this template. See [this documentation](https:/
 
 Note: This will impact Vite dev & build performances.
 
-## Quickstart Run
+## Quickstart Setup + Run
+
+First, install the dependencies:
+
+```bash
+npm ci
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
 ```
-Run the command to start the development server.
+
+Then open your browser to `http://localhost:5173`
+
+And edit the code in `src/App.tsx` to see the changes.
+
+Conventions on code style and structure will be covered in the next alignment meeting.
 
 ## Expanding the ESLint configuration
 
