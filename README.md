@@ -1,17 +1,7 @@
-# React + TypeScript + Vite
+# Music App (Name TBD)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
+The goal of the application is to allow users to build and showcase their personal music collection. 
+Users can add music they have listened to, give it ratings, and use their profile or collection to represent their music taste.
 
 ## Quickstart Setup + Run
 
@@ -30,8 +20,6 @@ npm run dev
 Then open your browser to `http://localhost:5173`
 
 And edit the code in `src/App.tsx` to see the changes.
-
-Conventions on code style and structure will be covered in the next alignment meeting.
 
 ## Expanding the ESLint configuration
 
