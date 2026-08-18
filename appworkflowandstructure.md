@@ -3,19 +3,20 @@
 Each feature should be developed in its own Git branch.
 
 A feature branch can contain everything necessary to implement that feature, including:
-
+```
 Feature
 ├── Page
 ├── Components
 ├── Types
 ├── Services
 └── Other supporting files
+```
 
 For example, an album rating feature might use:
 
 feat/album-rating
 
-
+```
 src/
 ├── pages/
 │   └── AlbumPage.tsx
@@ -25,6 +26,7 @@ src/
 │   └── rating.ts
 └── services/
     └── ratingService.ts
+```
 
 The important idea is that the branch represents the feature, not an individual file or component.
 
@@ -95,11 +97,13 @@ Example: AlbumPage.tsx could display the album information, the user's rating, r
 
 Contains smaller pieces of the user interface that can be used inside pages or other components.
 
+```
 components/
 ├── AlbumCard.tsx
 ├── RatingInput.tsx
 ├── ReviewCard.tsx
 └── Navbar.tsx
+```
 
 Example: AlbumCard.tsx could be reused on the collection page, profile page, and search results.
 
@@ -110,20 +114,24 @@ A page represents a screen. A component represents a piece of that screen.
 
 Contains shared TypeScript types and interfaces that describe the shape of the application's data.
 
+```
 types/
 ├── album.ts
 ├── artist.ts
 ├── rating.ts
 └── user.ts
+```
 
 For example:
 
+```ts
 export interface Album {
   id: string;
   title: string;
   artist: string;
   releaseYear: number;
 }
+```
 
 This allows different parts of the application to agree on what an Album should look like.
 
@@ -131,10 +139,12 @@ This allows different parts of the application to agree on what an Album should 
 
 Contains code responsible for communicating with APIs or other external services.
 
+``` 
 services/
 ├── albumService.ts
 ├── ratingService.ts
 └── userService.ts
+```
 
 Instead of making API requests directly inside a component:
 
@@ -142,12 +152,14 @@ const response = await axios.get("/api/albums");
 
 you can place that logic in:
 
+```ts
 // albumService.ts
 
 
 export const getAlbums = async () => {
   // API request
 };
+```
 
 The component can then call:
 
@@ -159,8 +171,9 @@ This keeps API logic separate from UI logic.
 
 Contains tests that verify that components and application logic behave correctly.
 
+```
 components/
 ├── AlbumCard.tsx
 └── AlbumCard.test.tsx
-
+```
 For example, a Vitest test could verify that AlbumCard correctly displays an album's title and rating.
