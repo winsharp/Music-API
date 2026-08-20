@@ -5,7 +5,7 @@ import axios from "axios";
 //type{} - only for typechecking
 import type{ SearchResponse} from "../types/search";
 
-const BASE_URL = "https://api.discogs.com/database/search";
+const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
 //read the token from env. file
 const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
 
@@ -20,15 +20,14 @@ export const searchReleases = async({
     genre,
 }: SearchParams): Promise<SearchResponse> => {
     //axios does a get, searchResponse tells ts the shape of the response so ide can autocomplete or catch errors
-   const response = await axios.get<SearchResponse>(BASE_URL, {
-       //axios will turns this object into URL query parameters
-       params:{
-           q:query,
-           type: "release",
-           genre,
-           token: TOKEN,
-       },
-   });
+    const response = await axios.get<SearchResponse>(`${BASE_URL}/database/search`, {
+        params: {
+            q: query,
+            type: "release",
+            genre,
+            token: TOKEN,
+        },
+    });
    //axio wraps the response object. .data is JSON body -this is what we are going to use
    return response.data;
 };
