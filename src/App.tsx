@@ -7,10 +7,11 @@ import SearchPage from './pages/SearchPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
+import MyProfileRedirect from './pages/MyProfileRedirect'
+import DiscogsCallbackPage from './pages/DiscogsCallbackPage'
 import SearchBox from "./components/SearchBox"
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
-import { LibraryProvider } from './contexts/LibraryContext'
 import './App.css'
 
 
@@ -20,7 +21,6 @@ function App() {
   return (
       <BrowserRouter>
         <AuthProvider>
-        <LibraryProvider>
         <Routes>
           <Route
               path="/"
@@ -149,12 +149,27 @@ function App() {
               path="/profile"
               element={
                 <ProtectedRoute>
+                  <MyProfileRedirect />
+                </ProtectedRoute>
+              }
+          />
+          <Route
+              path="/profile/:username"
+              element={
+                <ProtectedRoute>
                   <ProfilePage />
                 </ProtectedRoute>
               }
           />
+          <Route
+              path="/discogs/callback"
+              element={
+                <ProtectedRoute>
+                  <DiscogsCallbackPage />
+                </ProtectedRoute>
+              }
+          />
         </Routes>
-        </LibraryProvider>
         </AuthProvider>
       </BrowserRouter>
   )
