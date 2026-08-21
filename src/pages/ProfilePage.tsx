@@ -1,131 +1,112 @@
-import { useState } from "react";
-import type { SubmitEvent } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { useLibrary } from "../contexts/LibraryContext";
-import RatedItemCard from "../components/RatedItemCard";
-import LibraryFileStatusBanner from "../components/LibraryFileStatusBanner";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { discogsUserService } from "../services/discogsUserService";
+import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
+import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
+import type { DiscogsUserProfile, CollectionRelease } from "../types/discogsUser";
 
 export default function ProfilePage() {
-    const { user } = useAuth();
-    const {
-        ratings,
-        lists,
-        fileStatus,
-        fileError,
-        openLibraryFile,
-        createLibraryFile,
-        grantFilePermission,
-        removeRating,
-        createList,
-        deleteList,
-        removeFromList,
-    } = useLibrary();
+    const { username } = useParams<{ username: string }>();
+    const { connection } = useDiscogsConnection();
 
-    const [newListName, setNewListName] = useState("");
-    const [listError, setListError] = useState<string | null>(null);
-    const [isCreatingList, setIsCreatingList] = useState(false);
+    const [profile, setProfile] = useState<DiscogsUserProfile | null>(null);
+    const [collection, setCollection] = useState<CollectionRelease[]>([]);
+    // A personal access token authenticates as our own account, so it can
+    // only read another user's "All" folder if that user's collection is
+    // public. Most users' collections are private, so this is expected.
+    const [collectionError, setCollectionError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    if (!user) return null; // ProtectedRoute guarantees this; keeps TS happy
+    useEffect(() => {
+        if (!username) return;
 
-    const albums = ratings.filter((r) => r.itemType === "release" || r.itemType === "master");
+        const fetchProfile = async () => {
+            setLoading(true);
+            setError(null);
+            setCollectionError(null);
+            try {
+                const profileData = await discogsUserService.getProfile(username);
+                setProfile(profileData);
+            } catch (err) {
+                if (axios.isAxiosError(err)) {
+                    if (!err.response) {
+                        setError("Couldn't reach Discogs — check your internet connection and try again.");
+                    } else if (err.response.status === 404) {
+                        setError(`No Discogs user found for "${username}".`);
+                    } else {
+                        setError("Something went wrong fetching this profile. Please try again.");
+                    }
+                } else {
+                    setError("Something went wrong fetching this profile. Please try again.");
+                }
+                setLoading(false);
+                return;
+            }
 
-    async function handleCreateList(event: SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
-        const name = newListName.trim();
-        if (!name) return;
+            try {
+                const collectionData = await discogsUserService.getCollection(username, connection);
+                setCollection(collectionData.releases);
+            } catch (err) {
+                if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+                    setCollectionError(`${username}'s collection is private.`);
+                } else {
+                    setCollectionError("Couldn't load this user's collection right now.");
+                }
+                setCollection([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        setListError(null);
-        setIsCreatingList(true);
-        try {
-            await createList(name);
-            setNewListName("");
-        } catch (err) {
-            setListError(err instanceof Error ? err.message : "Failed to create list.");
-        } finally {
-            setIsCreatingList(false);
-        }
-    }
+        fetchProfile();
+    }, [username, connection]);
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p role="alert">{error}</p>;
+    if (!profile) return null;
 
     return (
         <div>
             <section>
-                <h1>{user.username}</h1>
-                <p>{user.email}</p>
+                {profile.avatar_url && <img src={profile.avatar_url} alt={profile.username} />}
+                <h1>{profile.username}</h1>
+                {profile.location && <p>{profile.location}</p>}
+                <p>
+                    {profile.num_collection} in collection · {profile.releases_rated} rated
+                    {profile.releases_rated > 0 && ` (avg ${profile.rating_avg.toFixed(1)})`}
+                </p>
+                <ConnectDiscogsButton />
             </section>
 
-            <LibraryFileStatusBanner
-                status={fileStatus}
-                error={fileError}
-                onOpen={openLibraryFile}
-                onCreate={createLibraryFile}
-                onGrantPermission={grantFilePermission}
-            />
-
-            {fileStatus === "ready" && (
-                <>
-                    <section>
-                        <h2>Albums</h2>
-                        {albums.length === 0 ? (
-                            <p>No albums rated yet.</p>
-                        ) : (
-                            <div>
-                                {albums.map((item) => (
-                                    <RatedItemCard
-                                        key={item.id}
-                                        item={item}
-                                        onRemove={() => removeRating(item.id)}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </section>
-
-                    <section>
-                        <h2>My Lists</h2>
-                        <form onSubmit={handleCreateList}>
-                            <label htmlFor="newListName">New list name</label>
-                            <input
-                                id="newListName"
-                                type="text"
-                                value={newListName}
-                                onChange={(e) => setNewListName(e.target.value)}
-                                required
-                            />
-                            <button type="submit" disabled={isCreatingList}>
-                                {isCreatingList ? "Creating..." : "Create List"}
-                            </button>
-                        </form>
-                        {listError && <p role="alert">{listError}</p>}
-
-                        {lists.length === 0 ? (
-                            <p>You haven't created any lists yet.</p>
-                        ) : (
-                            lists.map((list) => (
-                                <div key={list.id}>
-                                    <h3>{list.name}</h3>
-                                    <button type="button" onClick={() => deleteList(list.id)}>
-                                        Delete List
-                                    </button>
-                                    {list.items.length === 0 ? (
-                                        <p>This list is empty.</p>
-                                    ) : (
-                                        <div>
-                                            {list.items.map((item) => (
-                                                <RatedItemCard
-                                                    key={item.id}
-                                                    item={item}
-                                                    onRemove={() => removeFromList(list.id, item.id)}
-                                                    removeLabel="Remove from list"
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
+            <section>
+                <h2>Collection</h2>
+                {collectionError ? (
+                    <p role="alert">{collectionError}</p>
+                ) : collection.length === 0 ? (
+                    <p>This user hasn't added any releases to their collection yet.</p>
+                ) : (
+                    <div>
+                        {collection.map((item) => (
+                            <div key={item.instance_id}>
+                                {item.basic_information.thumb && (
+                                    <img src={item.basic_information.thumb} alt={item.basic_information.title} />
+                                )}
+                                <p>{item.basic_information.title}</p>
+                                <div>
+                                    {[1, 2, 3, 4, 5].map((n) => (
+                                        <span key={n} aria-hidden="true">
+                                            {item.rating >= n ? "★" : "☆"}
+                                        </span>
+                                    ))}
+                                    {item.rating === 0 && <span> Not rated</span>}
                                 </div>
-                            ))
-                        )}
-                    </section>
-                </>
-            )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
         </div>
     );
 }

@@ -1,162 +1,137 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProfilePage from "./ProfilePage";
+import { discogsUserService } from "../services/discogsUserService";
 import { useAuth } from "../contexts/AuthContext";
-import { useLibrary } from "../contexts/LibraryContext";
-import type { RatedItem } from "../interfaces/ratedItem";
-import type { UserList } from "../interfaces/userList";
+import type { DiscogsUserProfile, CollectionRelease } from "../types/discogsUser";
+
+vi.mock("../services/discogsUserService", () => ({
+    discogsUserService: {
+        getProfile: vi.fn(),
+        getCollection: vi.fn(),
+    },
+}));
 
 vi.mock("../contexts/AuthContext", () => ({
     useAuth: vi.fn(),
 }));
 
-vi.mock("../contexts/LibraryContext", () => ({
-    useLibrary: vi.fn(),
-}));
+const mockAppUser = { id: "user-1", username: "jdoe", email: "jdoe@example.com" };
 
-const mockUser = { id: "user-1", username: "jdoe", email: "jdoe@example.com" };
-
-const mockRateItem = vi.fn();
-const mockRemoveRating = vi.fn();
-const mockCreateList = vi.fn();
-const mockDeleteList = vi.fn();
-const mockAddToList = vi.fn();
-const mockRemoveFromList = vi.fn();
-const mockOpenLibraryFile = vi.fn();
-const mockCreateLibraryFile = vi.fn();
-const mockGrantFilePermission = vi.fn();
-
-function mockLibrary(overrides: Partial<ReturnType<typeof useLibrary>> = {}) {
-    vi.mocked(useLibrary).mockReturnValue({
-        ratings: [],
-        lists: [],
-        fileStatus: "ready",
-        fileError: null,
-        openLibraryFile: mockOpenLibraryFile,
-        createLibraryFile: mockCreateLibraryFile,
-        grantFilePermission: mockGrantFilePermission,
-        getRating: vi.fn(),
-        rateItem: mockRateItem,
-        removeRating: mockRemoveRating,
-        createList: mockCreateList,
-        deleteList: mockDeleteList,
-        addToList: mockAddToList,
-        removeFromList: mockRemoveFromList,
-        ...overrides,
-    });
-}
-
-const albumRating: RatedItem = {
-    id: "release:1",
-    itemType: "release",
-    refId: 1,
-    title: "Abbey Road",
-    rating: 5,
-    ratedAt: "2020-01-01",
+const mockProfile: DiscogsUserProfile = {
+    username: "memory",
+    profile: "",
+    avatar_url: "https://example.com/avatar.jpg",
+    location: "Portland, OR",
+    num_collection: 12,
+    num_wantlist: 3,
+    num_lists: 1,
+    releases_rated: 2,
+    rating_avg: 4.5,
 };
 
-const masterAlbumRating: RatedItem = {
-    id: "master:1",
-    itemType: "master",
-    refId: 1,
-    title: "Nevermind",
+const collectionItem: CollectionRelease = {
+    id: 1,
+    instance_id: 100,
     rating: 4,
-    ratedAt: "2020-01-01",
+    basic_information: { id: 1, title: "Abbey Road", thumb: "thumb.jpg", year: 1969 },
 };
 
-const list: UserList = {
-    id: "list-1",
-    name: "Favorites",
-    items: [{ id: "release:1", itemType: "release", refId: 1, title: "Abbey Road" }],
-    createdAt: "2020-01-01",
-};
+function renderWithRoute(username: string) {
+    return render(
+        <MemoryRouter initialEntries={[`/profile/${username}`]}>
+            <Routes>
+                <Route path="/profile/:username" element={<ProfilePage />} />
+            </Routes>
+        </MemoryRouter>
+    );
+}
 
 describe("ProfilePage", () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
-        mockLibrary();
+        localStorage.clear();
+        vi.mocked(useAuth).mockReturnValue({
+            user: mockAppUser,
+            login: vi.fn(),
+            logout: vi.fn(),
+            register: vi.fn(),
+        });
     });
 
-    it("renders the logged-in user's info", () => {
-        render(<ProfilePage />);
+    it("renders a Discogs user's profile info", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
 
-        expect(screen.getByText("jdoe")).toBeInTheDocument();
-        expect(screen.getByText("jdoe@example.com")).toBeInTheDocument();
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("memory")).toBeInTheDocument());
+        expect(screen.getByText("Portland, OR")).toBeInTheDocument();
+        expect(discogsUserService.getProfile).toHaveBeenCalledWith("memory");
+        expect(discogsUserService.getCollection).toHaveBeenCalledWith("memory", null);
     });
 
-    it("does not render rating sections while the library file isn't connected", () => {
-        mockLibrary({ fileStatus: "disconnected" });
+    it("shows an empty state when the collection has no releases", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
 
-        render(<ProfilePage />);
+        renderWithRoute("memory");
 
-        expect(screen.queryByText("Albums")).not.toBeInTheDocument();
-        expect(screen.getByText("Connect a library file to save your ratings and lists.")).toBeInTheDocument();
+        await waitFor(() =>
+            expect(screen.getByText("This user hasn't added any releases to their collection yet.")).toBeInTheDocument()
+        );
     });
 
-    it("shows both releases and masters as albums", () => {
-        mockLibrary({ ratings: [albumRating, masterAlbumRating] });
+    it("renders collection releases with their Discogs rating", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+            releases: [collectionItem],
+        });
 
-        render(<ProfilePage />);
+        renderWithRoute("memory");
 
-        expect(screen.getByText("Abbey Road")).toBeInTheDocument();
-        expect(screen.getByText("Nevermind")).toBeInTheDocument();
+        await waitFor(() => expect(screen.getByText("Abbey Road")).toBeInTheDocument());
     });
 
-    it("shows an empty state message when there are no rated albums", () => {
-        render(<ProfilePage />);
+    it("shows an error message when the user can't be found", async () => {
+        vi.mocked(discogsUserService.getProfile).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 404 },
+        });
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
 
-        expect(screen.getByText("No albums rated yet.")).toBeInTheDocument();
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
+
+        renderWithRoute("nobody");
+
+        await waitFor(() => expect(screen.getByText('No Discogs user found for "nobody".')).toBeInTheDocument());
     });
 
-    it("removes a rating when its remove button is clicked", async () => {
-        mockLibrary({ ratings: [albumRating] });
+    it("still shows profile info and a private-collection message when the collection can't be read", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 401 },
+        });
 
-        render(<ProfilePage />);
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
 
-        await userEvent.click(screen.getByRole("button", { name: "Remove" }));
+        renderWithRoute("memory");
 
-        expect(mockRemoveRating).toHaveBeenCalledWith("release:1");
-    });
-
-    it("creates a new list from the form", async () => {
-        mockLibrary();
-
-        render(<ProfilePage />);
-
-        await userEvent.type(screen.getByLabelText(/new list name/i), "Road Trip");
-        await userEvent.click(screen.getByRole("button", { name: /create list/i }));
-
-        expect(mockCreateList).toHaveBeenCalledWith("Road Trip");
-    });
-
-    it("renders existing lists and their items", () => {
-        mockLibrary({ lists: [list] });
-
-        render(<ProfilePage />);
-
-        expect(screen.getByText("Favorites")).toBeInTheDocument();
-        expect(screen.getByText("Abbey Road")).toBeInTheDocument();
-    });
-
-    it("deletes a list when its delete button is clicked", async () => {
-        mockLibrary({ lists: [list] });
-
-        render(<ProfilePage />);
-
-        await userEvent.click(screen.getByRole("button", { name: "Delete List" }));
-
-        expect(mockDeleteList).toHaveBeenCalledWith("list-1");
-    });
-
-    it("removes an item from a list", async () => {
-        mockLibrary({ lists: [list] });
-
-        render(<ProfilePage />);
-
-        await userEvent.click(screen.getByRole("button", { name: "Remove from list" }));
-
-        expect(mockRemoveFromList).toHaveBeenCalledWith("list-1", "release:1");
+        await waitFor(() => expect(screen.getByText("memory")).toBeInTheDocument());
+        expect(screen.getByText("memory's collection is private.")).toBeInTheDocument();
     });
 });
