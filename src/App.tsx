@@ -4,7 +4,10 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import SearchPage from './pages/SearchPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import SearchBox from "./components/SearchBox";
+import { AuthProvider } from './contexts/AuthContext'
 import './App.css'
 
 
@@ -13,6 +16,7 @@ function App() {
 
   return (
       <BrowserRouter>
+        <AuthProvider>
         <Routes>
           <Route
               path="/"
@@ -135,7 +139,10 @@ function App() {
               }
           />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
   )
 }
