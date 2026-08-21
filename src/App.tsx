@@ -6,8 +6,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import SearchPage from './pages/SearchPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import SearchBox from "./components/SearchBox";
+import ProfilePage from './pages/ProfilePage'
+import SearchBox from "./components/SearchBox"
+import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
+import { LibraryProvider } from './contexts/LibraryContext'
 import './App.css'
 
 
@@ -17,6 +20,7 @@ function App() {
   return (
       <BrowserRouter>
         <AuthProvider>
+        <LibraryProvider>
         <Routes>
           <Route
               path="/"
@@ -141,7 +145,16 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+          />
         </Routes>
+        </LibraryProvider>
         </AuthProvider>
       </BrowserRouter>
   )
