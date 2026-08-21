@@ -4,12 +4,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProfilePage from "./ProfilePage";
 import { discogsUserService } from "../services/discogsUserService";
 import { useAuth } from "../contexts/AuthContext";
-import type { DiscogsUserProfile, CollectionRelease } from "../types/discogsUser";
+import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
 
 vi.mock("../services/discogsUserService", () => ({
     discogsUserService: {
         getProfile: vi.fn(),
         getCollection: vi.fn(),
+        getLists: vi.fn(),
+        getListDetail: vi.fn(),
+        getWantlist: vi.fn(),
     },
 }));
 
@@ -35,7 +38,31 @@ const collectionItem: CollectionRelease = {
     id: 1,
     instance_id: 100,
     rating: 4,
+    date_added: "2024-01-01T00:00:00Z",
     basic_information: { id: 1, title: "Abbey Road", thumb: "thumb.jpg", year: 1969 },
+};
+
+const unratedCollectionItem: CollectionRelease = {
+    id: 2,
+    instance_id: 101,
+    rating: 0,
+    date_added: "2024-06-01T00:00:00Z",
+    basic_information: { id: 2, title: "Nevermind", thumb: "thumb2.jpg", year: 1991 },
+};
+
+const listDetail: DiscogsListDetail = {
+    id: 10,
+    name: "Best Jazz Albums",
+    description: "My personal favorites.",
+    public: true,
+    items: [{ id: 1, type: "release", display_title: "Miles Davis — Kind Of Blue" }],
+};
+
+const wantlistItem: WantlistItem = {
+    id: 3,
+    rating: 0,
+    date_added: "2024-03-01T00:00:00Z",
+    basic_information: { id: 3, title: "OK Computer", thumb: "thumb3.jpg", year: 1997 },
 };
 
 function renderWithRoute(username: string) {
@@ -57,6 +84,14 @@ describe("ProfilePage", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+        });
+        vi.mocked(discogsUserService.getLists).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            lists: [],
+        });
+        vi.mocked(discogsUserService.getWantlist).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            wants: [],
         });
     });
 
@@ -98,7 +133,37 @@ describe("ProfilePage", () => {
 
         renderWithRoute("memory");
 
-        await waitFor(() => expect(screen.getByText("Abbey Road")).toBeInTheDocument());
+        // Rated items show up under both "Recently Rated" and "Collection".
+        await waitFor(() => expect(screen.getAllByText("Abbey Road").length).toBeGreaterThan(0));
+    });
+
+    it("shows recently rated albums, excluding unrated collection items", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 2 },
+            releases: [collectionItem, unratedCollectionItem],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("Recently Rated")).toBeInTheDocument());
+        expect(screen.getAllByText("Abbey Road")).not.toHaveLength(0);
+        // Nevermind has no rating, so it shouldn't show up under Recently Rated
+        // (it still appears once under the full Collection list below).
+        expect(screen.getAllByText("Nevermind")).toHaveLength(1);
+    });
+
+    it("doesn't show a Recently Rated section when nothing has been rated", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+            releases: [unratedCollectionItem],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("Nevermind")).toBeInTheDocument());
+        expect(screen.queryByText("Recently Rated")).not.toBeInTheDocument();
     });
 
     it("shows an error message when the user can't be found", async () => {
@@ -133,5 +198,107 @@ describe("ProfilePage", () => {
 
         await waitFor(() => expect(screen.getByText("memory")).toBeInTheDocument());
         expect(screen.getByText("memory's collection is private.")).toBeInTheDocument();
+    });
+
+    it("shows an empty state when the user has no lists", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() =>
+            expect(screen.getByText("This user hasn't created any lists yet.")).toBeInTheDocument()
+        );
+    });
+
+    it("renders a user's lists with their items", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+        vi.mocked(discogsUserService.getLists).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+            lists: [{ id: listDetail.id, name: listDetail.name, description: listDetail.description, public: true }],
+        });
+        vi.mocked(discogsUserService.getListDetail).mockResolvedValue(listDetail);
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("Best Jazz Albums")).toBeInTheDocument());
+        expect(screen.getByText("Miles Davis — Kind Of Blue")).toBeInTheDocument();
+        expect(discogsUserService.getListDetail).toHaveBeenCalledWith(listDetail.id, null);
+    });
+
+    it("shows a private-lists message when the user's lists can't be read", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+        vi.mocked(discogsUserService.getLists).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 401 },
+        });
+
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("memory's lists are private.")).toBeInTheDocument());
+    });
+
+    it("shows an empty state when the user's wantlist is empty", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() =>
+            expect(screen.getByText("This user hasn't added anything to their wantlist yet.")).toBeInTheDocument()
+        );
+    });
+
+    it("renders a user's wantlist items", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+        vi.mocked(discogsUserService.getWantlist).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+            wants: [wantlistItem],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("OK Computer")).toBeInTheDocument());
+        expect(discogsUserService.getWantlist).toHaveBeenCalledWith("memory", null);
+    });
+
+    it("shows a private-wantlist message when the user's wantlist can't be read", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+        vi.mocked(discogsUserService.getWantlist).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 401 },
+        });
+
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("memory's wantlist is private.")).toBeInTheDocument());
     });
 });
