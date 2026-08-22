@@ -5,13 +5,16 @@ import { browseReleases } from "../services/browseService";
 import type { SearchResult } from "../types/search";
 import AlbumListItem from "../components/AlbumListItem";
 import GenreFilter from "../components/GenreFilter";
+import StyleFilter from "../components/StyleFilter";
 import Pagination from "../components/Pagination";
 import "./BrowseCatalogPage.css";
 
 const BrowseCatalogPage = () => {
     const [searchParams] = useSearchParams();
     const genre = searchParams.get("genre") || undefined;
+    const style = searchParams.get("style") || undefined;
     const page = Number(searchParams.get("page")) || 1;
+    const filterLabel = [genre, style].filter(Boolean).join(" / ");
 
     const [albums, setAlbums] = useState<SearchResult[]>([]);
     const [totalPages, setTotalPages] = useState(1);
@@ -23,7 +26,7 @@ const BrowseCatalogPage = () => {
             setLoading(true);
             setError(null);
             try {
-                const data = await browseReleases({ genre, page });
+                const data = await browseReleases({ genre, style, page });
                 setAlbums(data.results);
                 setTotalPages(data.pagination.pages);
             } catch (err) {
@@ -53,12 +56,13 @@ const BrowseCatalogPage = () => {
         };
 
         fetchAlbums();
-    }, [genre, page]);
+    }, [genre, style, page]);
 
     return (
         <div>
-            <h2>Browse Catalog{genre ? ` — ${genre}` : ""}</h2>
+            <h2>Browse Catalog{filterLabel ? ` — ${filterLabel}` : ""}</h2>
             <GenreFilter />
+            <StyleFilter />
             {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
             {!loading && !error && !albums.length && <p>No albums found.</p>}

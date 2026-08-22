@@ -57,4 +57,24 @@ describe("browseReleases", () => {
         await browseReleases({ genre: "Jazz", page: 3 });
         expect(capturedPage).toBe("3");
     });
+
+    it("sends the style filter through as its own query param, not genre", async () => {
+        let capturedStyle: string | null = null;
+        let capturedGenre: string | null = null;
+        server.use(
+            http.get(`${BASE_URL}/database/search`, ({ request }) => {
+                const url = new URL(request.url);
+                capturedStyle = url.searchParams.get("style");
+                capturedGenre = url.searchParams.get("genre");
+                return HttpResponse.json({
+                    pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+                    results: [],
+                });
+            })
+        );
+
+        await browseReleases({ style: "K-Pop" });
+        expect(capturedStyle).toBe("K-Pop");
+        expect(capturedGenre).toBeNull();
+    });
 });

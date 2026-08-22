@@ -122,4 +122,67 @@ describe("BrowseCatalogPage", () => {
         await screen.findByText("OK Computer");
         expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
     });
+
+    it("filters by style (e.g. K-Pop) using the style facet, not genre", async () => {
+        let capturedStyle: string | null = null;
+        let capturedGenre: string | null = null;
+        server.use(
+            http.get(`${BASE_URL}/database/search`, ({ request }) => {
+                const url = new URL(request.url);
+                capturedStyle = url.searchParams.get("style");
+                capturedGenre = url.searchParams.get("genre");
+                return HttpResponse.json({
+                    pagination: { page: 1, pages: 1, per_page: 50, items: mockBrowseResults.length },
+                    results: mockBrowseResults,
+                });
+            })
+        );
+
+        renderWithRoute("/browse?style=K-Pop");
+
+        await screen.findByText("The Dark Side of the Moon");
+        expect(capturedStyle).toBe("K-Pop");
+        expect(capturedGenre).toBeNull();
+        expect(screen.getByText("Browse Catalog — K-Pop")).toBeInTheDocument();
+    });
+
+    it("renders both a Genre and a Styles filter", async () => {
+        server.use(
+            http.get(`${BASE_URL}/database/search`, () => {
+                return HttpResponse.json({
+                    pagination: { page: 1, pages: 1, per_page: 50, items: mockBrowseResults.length },
+                    results: mockBrowseResults,
+                });
+            })
+        );
+
+        renderWithRoute("/browse");
+
+        await screen.findByText("The Dark Side of the Moon");
+        expect(screen.getByLabelText("Genre:")).toBeInTheDocument();
+        expect(screen.getByLabelText("Styles:")).toBeInTheDocument();
+    });
+
+    it("combines genre and style as a single request and shows both in the heading", async () => {
+        let capturedStyle: string | null = null;
+        let capturedGenre: string | null = null;
+        server.use(
+            http.get(`${BASE_URL}/database/search`, ({ request }) => {
+                const url = new URL(request.url);
+                capturedStyle = url.searchParams.get("style");
+                capturedGenre = url.searchParams.get("genre");
+                return HttpResponse.json({
+                    pagination: { page: 1, pages: 1, per_page: 50, items: mockBrowseResults.length },
+                    results: mockBrowseResults,
+                });
+            })
+        );
+
+        renderWithRoute("/browse?genre=Rock&style=Britpop");
+
+        await screen.findByText("The Dark Side of the Moon");
+        expect(capturedGenre).toBe("Rock");
+        expect(capturedStyle).toBe("Britpop");
+        expect(screen.getByText("Browse Catalog — Rock / Britpop")).toBeInTheDocument();
+    });
 });

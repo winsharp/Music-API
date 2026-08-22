@@ -7,9 +7,14 @@ const GenreFilter = () => {
     const selectedGenre = searchParams.get("genre") || "";
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const params = new URLSearchParams(searchParams);
         const genre = e.target.value;
-        const params = new URLSearchParams();
-        if (genre) params.set("genre", genre);
+        if (genre) {
+            params.set("genre", genre);
+        } else {
+            params.delete("genre");
+        }
+        params.delete("page");
         navigate(`/browse${params.toString() ? `?${params.toString()}` : ""}`);
     };
 

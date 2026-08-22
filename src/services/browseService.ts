@@ -8,10 +8,14 @@ const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
 
 interface BrowseParams {
     genre?: string;
+    // Discogs splits its taxonomy into a broad "genre" facet and a narrower
+    // "style" facet nested under it (e.g. K-Pop is a style under Pop/Rock,
+    // not a genre) — sending a style value as `genre` returns zero results.
+    style?: string;
     page?: number;
 }
 
-export const browseReleases = async ({ genre, page }: BrowseParams): Promise<SearchResponse> => {
+export const browseReleases = async ({ genre, style, page }: BrowseParams): Promise<SearchResponse> => {
     // No explicit `sort` here on purpose: Discogs' own default ordering surfaces
     // well-known releases first. Forcing sort=year or sort=title instead skews
     // results toward obscure new pressings or an alphabetical-collation artifact
@@ -20,6 +24,7 @@ export const browseReleases = async ({ genre, page }: BrowseParams): Promise<Sea
         params: {
             type: "release",
             genre,
+            style,
             token: TOKEN,
             page,
         },
