@@ -5,12 +5,16 @@ import { browseReleases } from "../services/browseService";
 import type { SearchResult } from "../types/search";
 import AlbumListItem from "../components/AlbumListItem";
 import GenreFilter from "../components/GenreFilter";
+import Pagination from "../components/Pagination";
+import "./BrowseCatalogPage.css";
 
 const BrowseCatalogPage = () => {
     const [searchParams] = useSearchParams();
     const genre = searchParams.get("genre") || undefined;
+    const page = Number(searchParams.get("page")) || 1;
 
     const [albums, setAlbums] = useState<SearchResult[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +23,9 @@ const BrowseCatalogPage = () => {
             setLoading(true);
             setError(null);
             try {
-                const data = await browseReleases({ genre });
+                const data = await browseReleases({ genre, page });
                 setAlbums(data.results);
+                setTotalPages(data.pagination.pages);
             } catch (err) {
                 console.error(err);
                 if (axios.isAxiosError(err)) {
@@ -48,7 +53,7 @@ const BrowseCatalogPage = () => {
         };
 
         fetchAlbums();
-    }, [genre]);
+    }, [genre, page]);
 
     return (
         <div>
@@ -58,11 +63,24 @@ const BrowseCatalogPage = () => {
             {error && <p>{error}</p>}
             {!loading && !error && !albums.length && <p>No albums found.</p>}
             {!loading && !error && albums.length > 0 && (
-                <div>
-                    {albums.map((album) => (
-                        <AlbumListItem key={album.id} album={album} />
-                    ))}
-                </div>
+                <table className="browse-catalog-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Artist</th>
+                            <th>Year</th>
+                            <th>Genre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {albums.map((album) => (
+                            <AlbumListItem key={album.id} album={album} />
+                        ))}
+                    </tbody>
+                </table>
+            )}
+            {!loading && !error && albums.length > 0 && (
+                <Pagination currentPage={page} totalPages={totalPages} />
             )}
         </div>
     );

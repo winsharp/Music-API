@@ -14,15 +14,17 @@ const AlbumListItem = ({ album }: AlbumListItemProps) => {
     };
 
     return (
-        <div>
-            {album.thumb && <img src={album.thumb} alt={title} />}
-            <button type="button" onClick={handleTitleClick}>
-                <h3>{title}</h3>
-            </button>
-            <p>{artist}</p>
-            <p>{album.year}</p>
-            {album.genre && album.genre.length > 0 && <p>{album.genre.join(", ")}</p>}
-        </div>
+        <tr>
+            <td>
+                {album.thumb && <img src={album.thumb} alt={title} width={40} height={40} />}
+                <button type="button" onClick={handleTitleClick}>
+                    {title}
+                </button>
+            </td>
+            <td>{artist}</td>
+            <td>{album.year}</td>
+            <td>{album.genre && album.genre.length > 0 ? album.genre.join(", ") : ""}</td>
+        </tr>
     );
 };
 

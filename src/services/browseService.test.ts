@@ -40,4 +40,21 @@ describe("browseReleases", () => {
         await browseReleases({ genre: "Jazz" });
         expect(capturedGenre).toBe("Jazz");
     });
+
+    it("sends the page number through as a query param", async () => {
+        let capturedPage: string | null = null;
+        server.use(
+            http.get(`${BASE_URL}/database/search`, ({ request }) => {
+                const url = new URL(request.url);
+                capturedPage = url.searchParams.get("page");
+                return HttpResponse.json({
+                    pagination: { page: 3, pages: 10, per_page: 50, items: 500 },
+                    results: [],
+                });
+            })
+        );
+
+        await browseReleases({ genre: "Jazz", page: 3 });
+        expect(capturedPage).toBe("3");
+    });
 });
