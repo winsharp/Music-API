@@ -1,4 +1,5 @@
 // Service file to browse Discogs releases by genre, without needing a search query.
+
 import axios from "axios";
 import type { SearchResponse } from "../types/search";
 

@@ -6,7 +6,6 @@ import '@testing-library/jest-dom';
 
 const mockNavigate = vi.fn();
 let mockSearchParams = new URLSearchParams();
-
 vi.mock('react-router-dom', () => ({
     useNavigate: () => mockNavigate,
     useSearchParams: () => [mockSearchParams],
@@ -41,14 +40,18 @@ describe('Pagination Component', () => {
     it('navigates to the next page, preserving other query params', async () => {
         mockSearchParams = new URLSearchParams('genre=Jazz&page=2');
         render(<Pagination currentPage={2} totalPages={5} />);
+
         await userEvent.click(screen.getByRole('button', { name: /next/i }));
+
         expect(mockNavigate).toHaveBeenCalledWith('/browse?genre=Jazz&page=3');
     });
 
     it('drops the page param entirely when navigating back to page 1', async () => {
         mockSearchParams = new URLSearchParams('genre=Jazz&page=2');
         render(<Pagination currentPage={2} totalPages={5} />);
+
         await userEvent.click(screen.getByRole('button', { name: /previous/i }));
+
         expect(mockNavigate).toHaveBeenCalledWith('/browse?genre=Jazz');
     });
 });

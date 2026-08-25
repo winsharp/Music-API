@@ -2,8 +2,9 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import SearchPage from './pages/SearchPage'
+import BrowseCatalogPage from './pages/BrowseCatalogPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
@@ -27,6 +28,9 @@ function App() {
                 <>
                   <section id="center">
                     <SearchBox />
+                    <p>
+                      <Link to="/browse">Browse Catalog</Link>
+                    </p>
                     <div className="hero">
                       ...
                     </div>
@@ -142,6 +146,7 @@ function App() {
               }
           />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/browse" element={<BrowseCatalogPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
