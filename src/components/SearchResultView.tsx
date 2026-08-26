@@ -14,7 +14,6 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
         // navigate to genre-filtered results once that route exists
         console.log("Clicked genre:", genre);
     };
-
     return (
         <div>
             {result.thumb && <img src={result.thumb} alt={result.title} />}

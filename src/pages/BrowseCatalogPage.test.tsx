@@ -1,11 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { http, HttpResponse } from "msw";
 import { server } from "../tests/server";
 import BrowseCatalogPage from "./BrowseCatalogPage";
 import { mockBrowseResults } from "../tests/browse.mock";
+import { useAuth } from "../contexts/AuthContext";
+import { discogsAuthStorage } from "../services/discogsAuthStorage";
+
+vi.mock("../contexts/AuthContext", () => ({
+    useAuth: vi.fn(),
+}));
+
+vi.mock("../services/discogsAuthStorage", () => ({
+    discogsAuthStorage: {
+        getConnection: vi.fn(),
+    },
+}));
 
 const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
 
@@ -17,6 +29,14 @@ const renderWithRoute = (path: string) => {
         </MemoryRouter>
     );
 };
+
+// Default: logged out, no Discogs connection — matches all existing
+// BrowseCatalogPage tests, which don't exercise the rating feature.
+beforeEach(() => {
+    vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+    vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(null);
+});
+
 
 describe("BrowseCatalogPage", () => {
     it("loads and shows albums on mount without requiring a search query", async () => {

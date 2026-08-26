@@ -1,11 +1,13 @@
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
+import RateAndCollect from "./RateAndCollect";
 
 interface AlbumListItemProps {
     album: SearchResult;
+    existingEntry?: { instance_id: number; rating: number };
 }
 
-const AlbumListItem = ({ album }: AlbumListItemProps) => {
+const AlbumListItem = ({ album, existingEntry }: AlbumListItemProps) => {
     const { artist, title } = parseAlbumTitle(album.title);
 
     const handleTitleClick = () => {
@@ -24,6 +26,9 @@ const AlbumListItem = ({ album }: AlbumListItemProps) => {
             <td>{artist}</td>
             <td>{album.year}</td>
             <td>{album.genre && album.genre.length > 0 ? album.genre.join(", ") : ""}</td>
+            <td>
+                <RateAndCollect releaseId={album.id} existingEntry={existingEntry} />
+            </td>
         </tr>
     );
 };
