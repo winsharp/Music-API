@@ -1,0 +1,49 @@
+.featured-release-section {
+    padding: 24px 20px;
+}
+
+.featured-release-section h2 {
+    margin-bottom: 16px;
+}
+
+.featured-release-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.featured-release-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    border: 1px solid var(--border, #ccc);
+    border-radius: 6px;
+    text-align: left;
+}
+
+.featured-release-card img {
+    align-self: center;
+    border-radius: 4px;
+}
+
+.featured-release-card button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.featured-release-artist {
+    font-size: 13px;
+    color: var(--text-h, inherit);
+}
+
+.featured-release-stat {
+    font-size: 13px;
+    font-weight: 600;
+}
