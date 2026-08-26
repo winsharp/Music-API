@@ -3,9 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 interface PaginationProps {
     currentPage: number;
     totalPages: number;
+    // Which page's URL to navigate within. Defaults to /browse since that
+    // was Pagination's original (and still most common) home.
+    basePath?: string;
 }
 
-const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
+const Pagination = ({ currentPage, totalPages, basePath = "/browse" }: PaginationProps) => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
@@ -16,7 +19,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
         } else {
             params.set("page", String(page));
         }
-        navigate(`/browse${params.toString() ? `?${params.toString()}` : ""}`);
+        navigate(`${basePath}${params.toString() ? `?${params.toString()}` : ""}`);
     };
 
     if (totalPages <= 1) return null;

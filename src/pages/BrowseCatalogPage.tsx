@@ -10,7 +10,7 @@ import AlbumListItem from "../components/AlbumListItem";
 import GenreFilter from "../components/GenreFilter";
 import StyleFilter from "../components/StyleFilter";
 import Pagination from "../components/Pagination";
-import "./BrowseCatalogPage.css";
+import "../styles/catalogTable.css";
 
 const BrowseCatalogPage = () => {
     const [searchParams] = useSearchParams();
