@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import SearchPage from './pages/SearchPage'
 import BrowseCatalogPage from './pages/BrowseCatalogPage'
+import ArtistPage from './pages/ArtistPage'
+import ReleasePage from './pages/ReleasePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
@@ -21,6 +23,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/browse" element={<BrowseCatalogPage />} />
+          <Route path="/artist" element={<ArtistPage />} />
+          <Route path="/release/:id" element={<ReleasePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route

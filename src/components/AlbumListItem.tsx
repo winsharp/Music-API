@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
 import RateAndCollect from "./RateAndCollect";
@@ -9,10 +10,18 @@ interface AlbumListItemProps {
 
 const AlbumListItem = ({ album, existingEntry }: AlbumListItemProps) => {
     const { artist, title } = parseAlbumTitle(album.title);
+    const navigate = useNavigate();
+    // parseAlbumTitle falls back to this literal string when a search
+    // result's title has no "Artist - Title" separator to split on — not a
+    // real artist to look up on Discogs, so don't make it clickable.
+    const hasKnownArtist = artist !== "Unknown Artist";
 
     const handleTitleClick = () => {
-        // navigate to album detail page once that route exists
-        console.log("Clicked:", album.title);
+        navigate(`/release/${album.id}`);
+    };
+
+    const handleArtistClick = () => {
+        navigate(`/artist?name=${encodeURIComponent(artist)}`);
     };
 
     return (
@@ -23,7 +32,15 @@ const AlbumListItem = ({ album, existingEntry }: AlbumListItemProps) => {
                     {title}
                 </button>
             </td>
-            <td>{artist}</td>
+            <td>
+                {hasKnownArtist ? (
+                    <button type="button" onClick={handleArtistClick}>
+                        {artist}
+                    </button>
+                ) : (
+                    artist
+                )}
+            </td>
             <td>{album.year}</td>
             <td>{album.genre && album.genre.length > 0 ? album.genre.join(", ") : ""}</td>
             <td>

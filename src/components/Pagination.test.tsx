@@ -54,4 +54,13 @@ describe('Pagination Component', () => {
 
         expect(mockNavigate).toHaveBeenCalledWith('/browse?genre=Jazz');
     });
+
+    it('navigates within the given basePath instead of /browse when provided', async () => {
+        mockSearchParams = new URLSearchParams('id=3840');
+        render(<Pagination currentPage={1} totalPages={3} basePath="/artist" />);
+
+        await userEvent.click(screen.getByRole('button', { name: /next/i }));
+
+        expect(mockNavigate).toHaveBeenCalledWith('/artist?id=3840&page=2');
+    });
 });

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import AlbumListItem from "./AlbumListItem";
 import { mockBrowseResults } from "../tests/browse.mock";
 import type { SearchResult } from "../types/search";
@@ -16,11 +17,17 @@ vi.mock("../services/discogsAuthStorage", () => ({
     },
 }));
 
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", () => ({
+    useNavigate: () => mockNavigate,
+}));
+
 // Default: logged out, no Discogs connection — matches most existing
 // AlbumListItem tests, which don't care about the rating feature.
 beforeEach(() => {
     vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
     vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(null);
+    mockNavigate.mockClear();
 });
 const renderRow = (album: SearchResult) =>
     render(
@@ -64,5 +71,35 @@ describe("AlbumListItem", () => {
     it("does not render an image when thumb is an empty string", () => {
         renderRow(mockBrowseResults[1]);
         expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    });
+
+    it("navigates to the release page when the title is clicked", async () => {
+        renderRow(mockBrowseResults[0]);
+
+        await userEvent.click(screen.getByRole("button", { name: "The Dark Side of the Moon" }));
+
+        expect(mockNavigate).toHaveBeenCalledWith(`/release/${mockBrowseResults[0].id}`);
+    });
+
+    it("navigates to the artist page (by name) when the artist is clicked", async () => {
+        renderRow(mockBrowseResults[0]);
+
+        await userEvent.click(screen.getByRole("button", { name: "Pink Floyd" }));
+
+        expect(mockNavigate).toHaveBeenCalledWith("/artist?name=Pink%20Floyd");
+    });
+
+    it("does not make 'Unknown Artist' clickable", () => {
+        renderRow({
+            id: 999,
+            title: "Untitled Compilation",
+            year: "2000",
+            thumb: "",
+            genre: [],
+            type: "release",
+            resource_url: "",
+        });
+
+        expect(screen.queryByRole("button", { name: "Unknown Artist" })).not.toBeInTheDocument();
     });
 });
