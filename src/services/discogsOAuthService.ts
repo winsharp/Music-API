@@ -10,8 +10,8 @@
 
 import axios from "axios";
 import type { RequestToken, AccessToken, DiscogsIdentity } from "../types/discogsOAuth";
+import { DISCOGS_BASE_URL as BASE_URL } from "./discogsConfig";
 
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
 const CONSUMER_KEY = import.meta.env.VITE_DISCOGS_CONSUMER_KEY;
 const CONSUMER_SECRET = import.meta.env.VITE_DISCOGS_CONSUMER_SECRET;
 const USER_AGENT = "MusicApi/1.0";

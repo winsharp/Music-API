@@ -160,5 +160,32 @@ export const mockProfiles: MockProfile[] = [
                 "thumb": "https://i.discogs.com/hkhpydNSePC0WqJQiOqdavq3CRJe8Q0DUD8PW0AHGkE/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY0MDA3/MDMtMTQ1NzExMzU2/Mi05OTgyLmpwZWc.jpeg"
             }
         ]
+    },
+    {
+        "username": "Jamzii",
+        "avatarUrl": "https://i.discogs.com/XhEVcd5_wU1uWvQuK92ayqHFWovkVT-3zXlxG2WLSHE/rs:fill/g:sm/q:40/h:300/w:300/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMxOTkzMzE0/LTE3ODc4NTM3NTIu/cG5n.jpeg",
+        "ratedReleases": [
+            {
+            "id": 10023901,
+            "title": "악몽 ♦ 惡夢",
+            "artist": "Dreamcatcher (13)",
+            "rating": 5,
+            "thumb": "https://i.discogs.com/GHwikmT692UzD6slhhiSMLXEUtbbVOOoxYKyBVbKc00/rs:fit/g:sm/q:90/h:500/w:344/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMDIz/OTAxLTE0OTAzMDU3/NjUtOTQxOS5wbmc.jpeg"
+            },
+            {
+            "id": 11847933,
+            "title": "Ember",
+            "artist": "Breaking Benjamin",
+            "rating": 5,
+            "thumb": "https://i.discogs.com/20ZCKDERaSPSfOG692ULe7xx0A-CMT4UDODsRGNGxyg/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExODQ3/OTMzLTE1MjM2Njg0/MjgtODgwNi5qcGVn.jpeg"
+            },
+            {
+            "id": 38195946,
+            "title": "<Hyper-Ego>",
+            "artist": "ARTMS (2)",
+            "rating": 0,
+            "thumb": "https://i.discogs.com/cNjMoMvGeEbYd9pq6d1VdZazPxRWXa7k4uRCH_kdWyw/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM4MTk1/OTQ2LTE3ODcxNzI4/NjctMzI5OS5qcGVn.jpeg"
+            }
+        ]
     }
 ];

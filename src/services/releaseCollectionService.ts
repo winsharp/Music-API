@@ -9,8 +9,8 @@
 import axios from "axios";
 import type { DiscogsConnection } from "../types/discogsOAuth";
 import { authHeaderFor } from "./discogsOAuthService";
+import { DISCOGS_BASE_URL as BASE_URL } from "./discogsConfig";
 
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
 const DEFAULT_FOLDER_ID = 1; // "Uncategorized" — the default writable folder
 
 export const releaseCollectionService = {

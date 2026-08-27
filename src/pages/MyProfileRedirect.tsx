@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
 
 // "/profile" (no username) sends the logged-in user to their own profile:

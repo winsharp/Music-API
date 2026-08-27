@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProfilePage from "./ProfilePage";
 import { discogsUserService } from "../services/discogsUserService";
 import { clearCache } from "../services/discogsUserCache";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
 
@@ -18,7 +18,7 @@ vi.mock("../services/discogsUserService", () => ({
     },
 }));
 
-vi.mock("../contexts/AuthContext", () => ({
+vi.mock("../hooks/useAuth", () => ({
     useAuth: vi.fn(),
 }));
 

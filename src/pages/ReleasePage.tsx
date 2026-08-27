@@ -4,7 +4,7 @@ import { Alert, Badge, Card, Col, Container, Image, ListGroup, Row } from "react
 import { getRelease } from "../services/releaseService";
 import { releaseCollectionService } from "../services/releaseCollectionService";
 import { discogsUserService } from "../services/discogsUserService";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import type { ReleaseDetail } from "../types/release";
 import ReleaseDetailSkeleton from "../components/skeletons/ReleaseDetailSkeleton";

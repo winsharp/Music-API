@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import type { SearchResult } from "../types/search";
-import { parseAlbumTitle } from "../utils/parseAlbumTitle";
+import { parseAlbumTitle, UNKNOWN_ARTIST } from "../utils/parseAlbumTitle";
 
 interface AlbumListItemProps {
     album: SearchResult;
@@ -10,10 +10,8 @@ interface AlbumListItemProps {
 const AlbumListItem = ({ album }: AlbumListItemProps) => {
     const { artist, title } = parseAlbumTitle(album.title);
     const navigate = useNavigate();
-    // parseAlbumTitle falls back to this literal string when a search
-    // result's title has no "Artist - Title" separator to split on — not a
-    // real artist to look up on Discogs, so don't make it clickable.
-    const hasKnownArtist = artist !== "Unknown Artist";
+    // Not a real artist to look up on Discogs, so don't make it clickable.
+    const hasKnownArtist = artist !== UNKNOWN_ARTIST;
 
     const handleTitleClick = () => {
         navigate(`/release/${album.id}`);

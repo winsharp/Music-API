@@ -4,13 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import RateAndCollect from "./RateAndCollect";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import { releaseCollectionService } from "../services/releaseCollectionService";
 import { wantlistService } from "../services/wantlistService";
 import type { DiscogsConnection } from "../types/discogsOAuth";
 
-vi.mock("../contexts/AuthContext", () => ({
+vi.mock("../hooks/useAuth", () => ({
     useAuth: vi.fn(),
 }));
 

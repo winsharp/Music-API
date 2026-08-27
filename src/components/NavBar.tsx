@@ -1,7 +1,7 @@
 // Top-level navigation bar. Persists on every page except /login and /register.
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import SearchBox from "./SearchBox";
 
 const HIDDEN_PATHS = ["/login", "/register"];

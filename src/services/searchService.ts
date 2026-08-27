@@ -4,10 +4,8 @@ import axios from "axios";
 //getting the type from search folder
 //type{} - only for typechecking
 import type{ SearchResponse} from "../types/search";
+import { DISCOGS_BASE_URL as BASE_URL, DISCOGS_TOKEN as TOKEN } from "./discogsConfig";
 
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
-//read the token from env. file
-const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
 //how many results to show per page of search results
 const PER_PAGE = 25;
 

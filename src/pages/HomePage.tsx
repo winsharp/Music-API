@@ -5,7 +5,7 @@ import { getFeaturedReleases } from "../services/homeService";
 import type { FeaturedReleases } from "../services/homeService";
 import FeaturedReleaseSection from "../components/FeaturedReleaseSection";
 import SearchBox from "../components/SearchBox";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import "./HomePage.css";
 
 const HomePage = () => {
@@ -21,7 +21,7 @@ const HomePage = () => {
     }, []);
 
     return (
-        <Container fluid="lg" className="home-page">
+        <Container fluid="lg">
             <section className="hero-section text-center py-5">
                 <p className="hero-eyebrow">Music Rating App</p>
                 <h1>Discover Music.</h1>

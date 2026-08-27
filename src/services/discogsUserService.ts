@@ -12,9 +12,7 @@ import type {
 } from "../types/discogsUser";
 import type { DiscogsConnection } from "../types/discogsOAuth";
 import { authHeaderFor } from "./discogsOAuthService";
-
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
-const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
+import { DISCOGS_BASE_URL as BASE_URL, DISCOGS_TOKEN as TOKEN } from "./discogsConfig";
 
 // If the caller has a linked OAuth connection for this exact username, sign
 // the request with it instead of the app's anonymous token — that's what

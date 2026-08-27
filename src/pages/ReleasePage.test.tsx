@@ -5,10 +5,10 @@ import { http, HttpResponse } from "msw";
 import { server } from "../tests/server";
 import ReleasePage from "./ReleasePage";
 import { mockReleaseDetail } from "../tests/release.mock";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 
-vi.mock("../contexts/AuthContext", () => ({
+vi.mock("../hooks/useAuth", () => ({
     useAuth: vi.fn(),
 }));
 

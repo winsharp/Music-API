@@ -1,4 +1,6 @@
 // Shapes from GET /artists/{id} and GET /artists/{id}/releases.
+import type { DiscogsPagination } from "./pagination";
+
 export interface ArtistProfile {
     id: number;
     name: string;
@@ -30,11 +32,6 @@ export interface ArtistRelease {
 }
 
 export interface ArtistReleasesResponse {
-    pagination: {
-        page: number;
-        pages: number;
-        per_page: number;
-        items: number;
-    };
+    pagination: DiscogsPagination;
     releases: RawArtistRelease[];
 }

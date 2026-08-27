@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "./useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import { discogsOAuthService } from "../services/discogsOAuthService";
 import type { DiscogsConnection } from "../types/discogsOAuth";

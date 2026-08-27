@@ -1,4 +1,5 @@
 //The types file
+import type { DiscogsPagination } from "./pagination";
 
 //describes the shape of only ONE item Discogs gives
 //us back like an album or release
@@ -20,11 +21,6 @@ export interface SearchResult{
 //wraps a list of results +
 // pagination(splitting large content into smaller separate pages
 export interface SearchResponse{
-    pagination:{
-        page: number;
-        pages: number;
-        per_page: number;
-        items: number;
-    };
+    pagination: DiscogsPagination;
     results:SearchResult[];
 }

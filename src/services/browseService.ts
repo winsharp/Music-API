@@ -2,9 +2,7 @@
 
 import axios from "axios";
 import type { SearchResponse } from "../types/search";
-
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
-const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
+import { DISCOGS_BASE_URL as BASE_URL, DISCOGS_TOKEN as TOKEN } from "./discogsConfig";
 
 interface BrowseParams {
     genre?: string;
