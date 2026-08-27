@@ -31,7 +31,7 @@ describe("MyProfileRedirect", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
     });
 
     it("redirects to the app username when no Discogs account is linked", async () => {

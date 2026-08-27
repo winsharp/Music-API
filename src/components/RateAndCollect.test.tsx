@@ -37,13 +37,13 @@ beforeEach(() => {
 
 describe("RateAndCollect", () => {
     it("renders nothing when the user is not logged in", () => {
-        vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         const { container } = render(<RateAndCollect releaseId={123} />);
         expect(container).toBeEmptyDOMElement();
     });
 
     it("prompts to connect Discogs when logged in but not connected", () => {
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(null);
 
         render(<RateAndCollect releaseId={123} />);
@@ -51,7 +51,7 @@ describe("RateAndCollect", () => {
     });
 
     it("shows a 'Save to Collection' button when not yet in the collection", () => {
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(mockConnection);
 
         render(<RateAndCollect releaseId={123} />);
@@ -59,7 +59,7 @@ describe("RateAndCollect", () => {
     });
 
     it("shows star buttons immediately when existingEntry is provided", () => {
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(mockConnection);
 
         render(<RateAndCollect releaseId={123} existingEntry={{ instance_id: 999, rating: 3 }} />);
@@ -69,7 +69,7 @@ describe("RateAndCollect", () => {
     });
 
     it("adds to collection and reveals star buttons after a successful save", async () => {
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(mockConnection);
         vi.mocked(releaseCollectionService.addToCollection).mockResolvedValue({ instance_id: 555 });
 
@@ -81,7 +81,7 @@ describe("RateAndCollect", () => {
     });
 
     it("shows an error message when adding to the collection fails", async () => {
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(mockConnection);
         vi.mocked(releaseCollectionService.addToCollection).mockRejectedValue(new Error("fail"));
 
@@ -92,7 +92,7 @@ describe("RateAndCollect", () => {
     });
 
     it("rates the release when a star is clicked", async () => {
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
         vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(mockConnection);
         vi.mocked(releaseCollectionService.rateRelease).mockResolvedValue(undefined);
 

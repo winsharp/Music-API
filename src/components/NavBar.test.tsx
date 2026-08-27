@@ -28,6 +28,7 @@ describe("NavBar", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
 
         renderNavBar("/");
@@ -44,11 +45,13 @@ describe("NavBar", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
 
         renderNavBar("/");
 
         expect(screen.getByRole("link", { name: /profile/i })).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: /settings/i })).toBeInTheDocument();
         expect(screen.queryByRole("link", { name: /log in/i })).not.toBeInTheDocument();
     });
 
@@ -58,6 +61,7 @@ describe("NavBar", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
 
         renderNavBar("/");
@@ -72,6 +76,7 @@ describe("NavBar", () => {
             login: vi.fn(),
             logout,
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
 
         renderNavBar("/");
@@ -86,6 +91,7 @@ describe("NavBar", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
 
         renderNavBar("/login");
@@ -99,6 +105,7 @@ describe("NavBar", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
 
         renderNavBar("/register");

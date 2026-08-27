@@ -33,7 +33,7 @@ const renderWithRoute = (path: string) => {
 // Default: logged out, no Discogs connection — matches all existing
 // BrowseCatalogPage tests, which don't exercise the rating feature.
 beforeEach(() => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+    vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
     vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(null);
 });
 

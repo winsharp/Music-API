@@ -47,6 +47,7 @@ describe("RegisterPage", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: mockRegister,
+            updateUser: vi.fn(),
         });
     });
 

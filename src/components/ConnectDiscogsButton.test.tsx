@@ -24,7 +24,7 @@ describe("ConnectDiscogsButton", () => {
         vi.clearAllMocks();
         localStorage.clear();
         sessionStorage.clear();
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
     });
 
     it("shows a connect button when no Discogs account is linked", () => {

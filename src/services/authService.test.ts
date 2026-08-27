@@ -88,6 +88,74 @@ describe("authService", () => {
         });
     });
 
+    describe("updateUser", () => {
+        it("updates username and email when the current password is correct", async () => {
+            const user = await authService.register(baseUser, password);
+
+            const updated = await authService.updateUser(
+                user.id,
+                { username: "newname", email: "new@example.com" },
+                password
+            );
+
+            expect(updated.username).toBe("newname");
+            expect(updated.email).toBe("new@example.com");
+            expect(authService.getSessionUser()?.username).toBe("newname");
+        });
+
+        it("updates the password when a new one is provided", async () => {
+            const user = await authService.register(baseUser, password);
+
+            await authService.updateUser(user.id, baseUser, password, "newpassword");
+            authService.logout();
+
+            const loggedIn = await authService.login(baseUser.username, "newpassword");
+            expect(loggedIn.id).toBe(user.id);
+        });
+
+        it("keeps the old password when no new password is provided", async () => {
+            const user = await authService.register(baseUser, password);
+
+            await authService.updateUser(user.id, baseUser, password);
+            authService.logout();
+
+            const loggedIn = await authService.login(baseUser.username, password);
+            expect(loggedIn.id).toBe(user.id);
+        });
+
+        it("throws when the current password is incorrect", async () => {
+            const user = await authService.register(baseUser, password);
+
+            await expect(
+                authService.updateUser(user.id, baseUser, "wrong-password")
+            ).rejects.toThrow("Current password is incorrect.");
+        });
+
+        it("throws when the new username is already taken by another user", async () => {
+            const user = await authService.register(baseUser, password);
+            await authService.register({ username: "other", email: "other@example.com" }, password);
+
+            await expect(
+                authService.updateUser(user.id, { username: "Other", email: baseUser.email }, password)
+            ).rejects.toThrow("Username is already taken.");
+        });
+
+        it("throws when the new email is already used by another user", async () => {
+            const user = await authService.register(baseUser, password);
+            await authService.register({ username: "other", email: "other@example.com" }, password);
+
+            await expect(
+                authService.updateUser(user.id, { username: baseUser.username, email: "OTHER@example.com" }, password)
+            ).rejects.toThrow("An account with this email already exists.");
+        });
+
+        it("throws when the user no longer exists", async () => {
+            await expect(
+                authService.updateUser("missing-id", baseUser, password)
+            ).rejects.toThrow("User not found.");
+        });
+    });
+
     describe("getSessionUser", () => {
         it("returns null when there is no active session", () => {
             expect(authService.getSessionUser()).toBeNull();

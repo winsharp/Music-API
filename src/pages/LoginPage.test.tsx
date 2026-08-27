@@ -35,6 +35,7 @@ describe("LoginPage", () => {
             login: mockLogin,
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
     });
 
