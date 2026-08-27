@@ -19,7 +19,7 @@ const NavBar = () => {
     };
 
     return (
-        <Navbar expand="lg" bg="dark" variant="dark" className="mb-3" collapseOnSelect>
+        <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect>
             <Container fluid>
                 <Navbar.Brand as={Link} to="/">
                     Music API
