@@ -7,6 +7,7 @@ import ReleasePage from './pages/ReleasePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
+import ProfileSectionPage from './pages/ProfileSectionPage'
 import MyProfileRedirect from './pages/MyProfileRedirect'
 import SettingsPage from './pages/SettingsPage'
 import DiscogsCallbackPage from './pages/DiscogsCallbackPage'
@@ -31,7 +32,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
             <Route path="/ratings-mock" element={<AllRatingsMockPage />} />
-            <Route path="/profile-mock/:username" element={<RatingsMockPage />} />          <Route
+            <Route path="/profile-mock/:username" element={<RatingsMockPage />} />
+          <Route
               path="/profile"
               element={
                 <ProtectedRoute>
@@ -52,6 +54,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+          />
+          <Route
+              path="/profile/:username/:section"
+              element={
+                <ProtectedRoute>
+                  <ProfileSectionPage />
                 </ProtectedRoute>
               }
           />

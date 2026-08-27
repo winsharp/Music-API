@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProfilePage from "./ProfilePage";
 import { discogsUserService } from "../services/discogsUserService";
+import { clearCache } from "../services/discogsUserCache";
 import { useAuth } from "../contexts/AuthContext";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
 
@@ -79,6 +80,7 @@ describe("ProfilePage", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
+        clearCache();
         vi.mocked(useAuth).mockReturnValue({
             user: mockAppUser,
             login: vi.fn(),

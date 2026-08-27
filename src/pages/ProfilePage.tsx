@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { Alert, Card, Col, Container, Image, Row } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
+import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
@@ -30,17 +31,41 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Each section only shows a handful of items; clicking "View All" takes
+    // the user to a dedicated page with the full list.
+    const SECTION_PAGE_SIZE = 5;
+
     useEffect(() => {
         if (!username) return;
 
+        // Reuse recently-fetched data (e.g. when navigating back from a
+        // "View All" section page) instead of showing a full-page loading
+        // state and re-hitting Discogs for data we already have.
+        const connKey = connection?.discogsUsername ?? "anon";
+        const profileKey = `profile:${username}`;
+        const collectionKey = `collection:${username}:${connKey}`;
+        const listsKey = `lists:${username}:${connKey}`;
+        const wantlistKey = `wantlist:${username}:${connKey}`;
+
+        const cachedProfile = getCached<DiscogsUserProfile>(profileKey);
+        const cachedCollection = getCached<CollectionRelease[]>(collectionKey);
+        const cachedLists = getCached<DiscogsListDetail[]>(listsKey);
+        const cachedWantlist = getCached<WantlistItem[]>(wantlistKey);
+
+        if (cachedProfile) setProfile(cachedProfile);
+        if (cachedCollection) setCollection(cachedCollection);
+        if (cachedLists) setLists(cachedLists);
+        if (cachedWantlist) setWantlist(cachedWantlist);
+
         const fetchProfile = async () => {
-            setLoading(true);
+            setLoading(!cachedProfile);
             setError(null);
             setCollectionError(null);
             setListsError(null);
             setWantlistError(null);
             try {
-                const profileData = await discogsUserService.getProfile(username);
+                const profileData = cachedProfile ?? (await discogsUserService.getProfile(username));
+                if (!cachedProfile) setCached(profileKey, profileData);
                 setProfile(profileData);
             } catch (err) {
                 if (axios.isAxiosError(err)) {
@@ -59,8 +84,9 @@ export default function ProfilePage() {
             }
 
             try {
-                const collectionData = await discogsUserService.getCollection(username, connection);
-                setCollection(collectionData.releases);
+                const releases = cachedCollection ?? (await discogsUserService.getCollection(username, connection)).releases;
+                if (!cachedCollection) setCached(collectionKey, releases);
+                setCollection(releases);
             } catch (err) {
                 if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
                     setCollectionError(`${username}'s collection is private.`);
@@ -71,10 +97,14 @@ export default function ProfilePage() {
             }
 
             try {
-                const listsData = await discogsUserService.getLists(username, connection);
-                const details = await Promise.all(
-                    listsData.lists.map((list) => discogsUserService.getListDetail(list.id, connection))
-                );
+                let details = cachedLists;
+                if (!details) {
+                    const listsData = await discogsUserService.getLists(username, connection);
+                    details = await Promise.all(
+                        listsData.lists.map((list) => discogsUserService.getListDetail(list.id, connection))
+                    );
+                    setCached(listsKey, details);
+                }
                 setLists(details);
             } catch (err) {
                 if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
@@ -86,8 +116,9 @@ export default function ProfilePage() {
             }
 
             try {
-                const wantlistData = await discogsUserService.getWantlist(username, connection);
-                setWantlist(wantlistData.wants);
+                const wants = cachedWantlist ?? (await discogsUserService.getWantlist(username, connection)).wants;
+                if (!cachedWantlist) setCached(wantlistKey, wants);
+                setWantlist(wants);
             } catch (err) {
                 if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
                     setWantlistError(`${username}'s wantlist is private.`);
@@ -109,10 +140,12 @@ export default function ProfilePage() {
         () =>
             collection
                 .filter((item) => item.rating > 0)
-                .sort((a, b) => new Date(b.date_added).getTime() - new Date(a.date_added).getTime())
-                .slice(0, 10),
+                .sort((a, b) => new Date(b.date_added).getTime() - new Date(a.date_added).getTime()),
         [collection]
     );
+    const visibleRecentlyRated = recentlyRated.slice(0, SECTION_PAGE_SIZE);
+    const visibleCollection = collection.slice(0, SECTION_PAGE_SIZE);
+    const visibleWantlist = wantlist.slice(0, SECTION_PAGE_SIZE);
 
     if (loading) return (
         <Container fluid="lg" className="py-4">
@@ -145,7 +178,7 @@ export default function ProfilePage() {
                 <section className="mb-4">
                     <h2>Recently Rated</h2>
                     <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                        {recentlyRated.map((item) => (
+                        {visibleRecentlyRated.map((item) => (
                             <Col key={item.instance_id}>
                                 <Card className="h-100">
                                     {item.basic_information.thumb ? (
@@ -172,6 +205,13 @@ export default function ProfilePage() {
                             </Col>
                         ))}
                     </Row>
+                    {recentlyRated.length > SECTION_PAGE_SIZE && (
+                        <div className="text-center mt-2">
+                            <Link to={`/profile/${username}/rated`} className="btn btn-link btn-sm p-0 text-decoration-none">
+                                View All
+                            </Link>
+                        </div>
+                    )}
                 </section>
             )}
 
@@ -182,35 +222,47 @@ export default function ProfilePage() {
                 ) : collection.length === 0 ? (
                     <p>This user hasn't added any releases to their collection yet.</p>
                 ) : (
-                    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                        {collection.map((item) => (
-                            <Col key={item.instance_id}>
-                                <Card className="h-100">
-                                    {item.basic_information.thumb ? (
-                                        <Card.Img
-                                            variant="top"
-                                            className="media-thumb"
-                                            src={item.basic_information.thumb}
-                                            alt={item.basic_information.title}
-                                        />
-                                    ) : (
-                                        <div className="media-thumb media-thumb-placeholder" />
-                                    )}
-                                    <Card.Body className="p-2">
-                                        <p className="mb-1 small">{item.basic_information.title}</p>
-                                        <div>
-                                            {[1, 2, 3, 4, 5].map((n) => (
-                                                <span key={n} aria-hidden="true">
-                                                    {item.rating >= n ? "★" : "☆"}
-                                                </span>
-                                            ))}
-                                            {item.rating === 0 && <span> Not rated</span>}
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
-                    </Row>
+                    <>
+                        <Row xs={2} sm={3} md={4} lg={5} className="g-3">
+                            {visibleCollection.map((item) => (
+                                <Col key={item.instance_id}>
+                                    <Card className="h-100">
+                                        {item.basic_information.thumb ? (
+                                            <Card.Img
+                                                variant="top"
+                                                className="media-thumb"
+                                                src={item.basic_information.thumb}
+                                                alt={item.basic_information.title}
+                                            />
+                                        ) : (
+                                            <div className="media-thumb media-thumb-placeholder" />
+                                        )}
+                                        <Card.Body className="p-2">
+                                            <p className="mb-1 small">{item.basic_information.title}</p>
+                                            <div>
+                                                {[1, 2, 3, 4, 5].map((n) => (
+                                                    <span key={n} aria-hidden="true">
+                                                        {item.rating >= n ? "★" : "☆"}
+                                                    </span>
+                                                ))}
+                                                {item.rating === 0 && <span> Not rated</span>}
+                                            </div>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                        {collection.length > SECTION_PAGE_SIZE && (
+                            <div className="text-center mt-2">
+                                <Link
+                                    to={`/profile/${username}/collection`}
+                                    className="btn btn-link btn-sm p-0 text-decoration-none"
+                                >
+                                    View All
+                                </Link>
+                            </div>
+                        )}
+                    </>
                 )}
             </section>
 
@@ -252,27 +304,39 @@ export default function ProfilePage() {
                 ) : wantlist.length === 0 ? (
                     <p>This user hasn't added anything to their wantlist yet.</p>
                 ) : (
-                    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                        {wantlist.map((item) => (
-                            <Col key={item.id}>
-                                <Card className="h-100">
-                                    {item.basic_information.thumb ? (
-                                        <Card.Img
-                                            variant="top"
-                                            className="media-thumb"
-                                            src={item.basic_information.thumb}
-                                            alt={item.basic_information.title}
-                                        />
-                                    ) : (
-                                        <div className="media-thumb media-thumb-placeholder" />
-                                    )}
-                                    <Card.Body className="p-2">
-                                        <p className="mb-0 small">{item.basic_information.title}</p>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
-                    </Row>
+                    <>
+                        <Row xs={2} sm={3} md={4} lg={5} className="g-3">
+                            {visibleWantlist.map((item) => (
+                                <Col key={item.id}>
+                                    <Card className="h-100">
+                                        {item.basic_information.thumb ? (
+                                            <Card.Img
+                                                variant="top"
+                                                className="media-thumb"
+                                                src={item.basic_information.thumb}
+                                                alt={item.basic_information.title}
+                                            />
+                                        ) : (
+                                            <div className="media-thumb media-thumb-placeholder" />
+                                        )}
+                                        <Card.Body className="p-2">
+                                            <p className="mb-0 small">{item.basic_information.title}</p>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                        {wantlist.length > SECTION_PAGE_SIZE && (
+                            <div className="text-center mt-2">
+                                <Link
+                                    to={`/profile/${username}/wantlist`}
+                                    className="btn btn-link btn-sm p-0 text-decoration-none"
+                                >
+                                    View All
+                                </Link>
+                            </div>
+                        )}
+                    </>
                 )}
             </section>
         </Container>
