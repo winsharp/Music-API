@@ -12,9 +12,9 @@ const BrowseCatalogTableSkeleton = ({ rows = 8 }: BrowseCatalogTableSkeletonProp
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Artist</th>
-                    <th>Year</th>
-                    <th>Genre</th>
+                    <th className="d-none d-sm-table-cell">Artist</th>
+                    <th className="d-none d-sm-table-cell">Year</th>
+                    <th className="d-none d-sm-table-cell">Genre</th>
                     <th>Rate / Collect</th>
                 </tr>
             </thead>
@@ -31,17 +31,17 @@ const BrowseCatalogTableSkeleton = ({ rows = 8 }: BrowseCatalogTableSkeletonProp
                                 </Placeholder>
                             </div>
                         </td>
-                        <td>
+                        <td className="d-none d-sm-table-cell">
                             <Placeholder as="span" animation="glow">
                                 <Placeholder xs={6} />
                             </Placeholder>
                         </td>
-                        <td>
+                        <td className="d-none d-sm-table-cell">
                             <Placeholder as="span" animation="glow">
                                 <Placeholder xs={4} />
                             </Placeholder>
                         </td>
-                        <td>
+                        <td className="d-none d-sm-table-cell">
                             <Placeholder as="span" animation="glow">
                                 <Placeholder xs={5} />
                             </Placeholder>

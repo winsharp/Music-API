@@ -28,7 +28,10 @@ describe("AlbumListItem", () => {
         renderRow(mockBrowseResults[0]);
 
         expect(screen.getByText("The Dark Side of the Moon")).toBeInTheDocument();
-        expect(screen.getByText("Pink Floyd")).toBeInTheDocument();
+        // "Pink Floyd" appears twice: once in the mobile-only summary line
+        // and once in the desktop-only column (both rendered in the DOM;
+        // only one is visible at a time via responsive CSS classes).
+        expect(screen.getAllByText("Pink Floyd").length).toBeGreaterThan(0);
         expect(screen.getByText("1973")).toBeInTheDocument();
         expect(screen.getByText("Rock")).toBeInTheDocument();
     });
@@ -44,7 +47,8 @@ describe("AlbumListItem", () => {
             resource_url: "",
         });
 
-        expect(screen.getByText("Unknown Artist")).toBeInTheDocument();
+        // Rendered in both the mobile summary line and the desktop column.
+        expect(screen.getAllByText("Unknown Artist").length).toBeGreaterThan(0);
         expect(screen.getByText("Untitled Compilation")).toBeInTheDocument();
     });
 
@@ -69,7 +73,9 @@ describe("AlbumListItem", () => {
     it("navigates to the artist page (by name) when the artist is clicked", async () => {
         renderRow(mockBrowseResults[0]);
 
-        await userEvent.click(screen.getByRole("button", { name: "Pink Floyd" }));
+        // Two "Pink Floyd" buttons exist (mobile summary + desktop column);
+        // both call the same click handler, so clicking either is valid.
+        await userEvent.click(screen.getAllByRole("button", { name: "Pink Floyd" })[0]);
 
         expect(mockNavigate).toHaveBeenCalledWith("/artist?name=Pink%20Floyd");
     });

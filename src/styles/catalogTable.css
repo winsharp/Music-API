@@ -8,3 +8,23 @@
 .browse-catalog-table button.btn-link {
     text-align: left;
 }
+
+/* On phones, four columns of full-size text/images push the table wider
+   than the screen and force horizontal scrolling. Below `sm`, the
+   Artist/Year/Genre columns collapse (see AlbumListItem's `d-sm-table-cell`
+   cells + mobile meta line) so only Title remains — tighten that up too. */
+@media (max-width: 575.98px) {
+    .browse-catalog-table {
+        font-size: 0.85rem;
+    }
+
+    .browse-catalog-table th,
+    .browse-catalog-table td {
+        padding: 0.5rem 0.4rem;
+    }
+
+    .browse-catalog-table img {
+        width: 28px;
+        height: 28px;
+    }
+}
