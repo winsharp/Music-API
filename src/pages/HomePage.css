@@ -6,30 +6,4 @@
     margin-bottom: 16px;
 }
 
-.featured-release-card img {
-    align-self: center;
-    border-radius: 4px 4px 0 0;
-}
 
-.featured-release-title-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-    display: block;
-    width: 100%;
-}
-
-.featured-release-artist {
-    font-size: 13px;
-    color: var(--text-h, inherit);
-}
-
-.featured-release-stat {
-    font-size: 13px;
-    font-weight: 600;
-}

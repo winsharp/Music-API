@@ -48,7 +48,16 @@ describe("SearchResultView", () => {
         const result = mockSearchResults[0];
         render(<SearchResultView result={result} />);
 
-        await userEvent.click(screen.getByRole("button", { name: "The Dark Side of the Moon" }));
+        await userEvent.click(screen.getByText("The Dark Side of the Moon"));
+
+        expect(mockNavigate).toHaveBeenCalledWith(`/release/${result.id}`);
+    });
+
+    it("navigates to the release page when the cover art is clicked", async () => {
+        const result = mockSearchResults[0];
+        render(<SearchResultView result={result} />);
+
+        await userEvent.click(screen.getByRole("img"));
 
         expect(mockNavigate).toHaveBeenCalledWith(`/release/${result.id}`);
     });

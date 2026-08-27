@@ -1,6 +1,7 @@
-import { Card, Col } from "react-bootstrap";
+import { Button, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import type { DiscogsReleaseDetail } from "../types/discogsRelease";
+import MediaCard from "./MediaCard";
 
 interface FeaturedReleaseCardProps {
     release: DiscogsReleaseDetail;
@@ -24,26 +25,20 @@ const FeaturedReleaseCard = ({ release, stat }: FeaturedReleaseCardProps) => {
 
     return (
         <Col>
-            <Card className="featured-release-card h-100">
-                {release.thumb && <Card.Img variant="top" src={release.thumb} alt={release.title} />}
-                <Card.Body className="p-2">
-                    <button type="button" className="featured-release-title-btn" onClick={handleTitleClick}>
-                        {release.title}
-                    </button>
-                    {hasKnownArtist ? (
-                        <button
-                            type="button"
-                            className="featured-release-title-btn featured-release-artist mb-0"
-                            onClick={handleArtistClick}
-                        >
-                            {artist}
-                        </button>
-                    ) : (
-                        <p className="featured-release-artist mb-0">{artist}</p>
-                    )}
-                    <p className="featured-release-stat mb-0">{stat}</p>
-                </Card.Body>
-            </Card>
+            <MediaCard thumb={release.thumb} alt={release.title} title={release.title} onClick={handleTitleClick}>
+                {hasKnownArtist ? (
+                    <Button
+                        variant="link"
+                        className="p-0 text-start d-block mb-1 media-card-subtitle"
+                        onClick={handleArtistClick}
+                    >
+                        {artist}
+                    </Button>
+                ) : (
+                    <p className="mb-1 media-card-subtitle">{artist}</p>
+                )}
+                <p className="mb-0 small fw-semibold">{stat}</p>
+            </MediaCard>
         </Col>
     );
 };

@@ -7,10 +7,10 @@ import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
 import { useAuth } from "../contexts/AuthContext";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
+import MediaCard from "../components/MediaCard";
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
 import { mockProfiles } from "../tests/mockProfiles";
-import "../styles/mediaThumb.css";
 
 export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
@@ -258,41 +258,29 @@ export default function ProfilePage() {
                     <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                         {visibleRecentlyRated.map((item) => (
                             <Col key={item.instance_id}>
-                                <Card
-                                    className="h-100 clickable-card"
-                                    role="button"
+                                <MediaCard
+                                    thumb={item.basic_information.thumb}
+                                    alt={item.basic_information.title}
+                                    title={item.basic_information.title}
                                     onClick={() => navigate(`/release/${item.basic_information.id}`)}
                                 >
-                                    {item.basic_information.thumb ? (
-                                        <Card.Img
-                                            variant="top"
-                                            className="media-thumb"
-                                            src={item.basic_information.thumb}
-                                            alt={item.basic_information.title}
-                                        />
-                                    ) : (
-                                        <div className="media-thumb media-thumb-placeholder" />
+                                    {item.basic_information.artists?.[0] && (
+                                        <Button
+                                            variant="link"
+                                            className="p-0 text-start d-block mb-1 media-card-subtitle"
+                                            onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
+                                        >
+                                            {item.basic_information.artists[0].name}
+                                        </Button>
                                     )}
-                                    <Card.Body className="p-2">
-                                        <p className="mb-1 small">{item.basic_information.title}</p>
-                                        {item.basic_information.artists?.[0] && (
-                                            <Button
-                                                variant="link"
-                                                className="p-0 text-start small d-block mb-1"
-                                                onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                            >
-                                                {item.basic_information.artists[0].name}
-                                            </Button>
-                                        )}
-                                        <div>
-                                            {[1, 2, 3, 4, 5].map((n) => (
-                                                <span key={n} aria-hidden="true">
-                                                    {item.rating >= n ? "★" : "☆"}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+                                    <div>
+                                        {[1, 2, 3, 4, 5].map((n) => (
+                                            <span key={n} aria-hidden="true">
+                                                {item.rating >= n ? "★" : "☆"}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </MediaCard>
                             </Col>
                         ))}
                     </Row>
@@ -317,42 +305,30 @@ export default function ProfilePage() {
                         <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                             {visibleCollection.map((item) => (
                                 <Col key={item.instance_id}>
-                                    <Card
-                                        className="h-100 clickable-card"
-                                        role="button"
+                                    <MediaCard
+                                        thumb={item.basic_information.thumb}
+                                        alt={item.basic_information.title}
+                                        title={item.basic_information.title}
                                         onClick={() => navigate(`/release/${item.basic_information.id}`)}
                                     >
-                                        {item.basic_information.thumb ? (
-                                            <Card.Img
-                                                variant="top"
-                                                className="media-thumb"
-                                                src={item.basic_information.thumb}
-                                                alt={item.basic_information.title}
-                                            />
-                                        ) : (
-                                            <div className="media-thumb media-thumb-placeholder" />
+                                        {item.basic_information.artists?.[0] && (
+                                            <Button
+                                                variant="link"
+                                                className="p-0 text-start d-block mb-1 media-card-subtitle"
+                                                onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
+                                            >
+                                                {item.basic_information.artists[0].name}
+                                            </Button>
                                         )}
-                                        <Card.Body className="p-2">
-                                            <p className="mb-1 small">{item.basic_information.title}</p>
-                                            {item.basic_information.artists?.[0] && (
-                                                <Button
-                                                    variant="link"
-                                                    className="p-0 text-start small d-block mb-1"
-                                                    onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                                >
-                                                    {item.basic_information.artists[0].name}
-                                                </Button>
-                                            )}
-                                            <div>
-                                                {[1, 2, 3, 4, 5].map((n) => (
-                                                    <span key={n} aria-hidden="true">
-                                                        {item.rating >= n ? "★" : "☆"}
-                                                    </span>
-                                                ))}
-                                                {item.rating === 0 && <span> Not rated</span>}
-                                            </div>
-                                        </Card.Body>
-                                    </Card>
+                                        <div>
+                                            {[1, 2, 3, 4, 5].map((n) => (
+                                                <span key={n} aria-hidden="true">
+                                                    {item.rating >= n ? "★" : "☆"}
+                                                </span>
+                                            ))}
+                                            {item.rating === 0 && <span> Not rated</span>}
+                                        </div>
+                                    </MediaCard>
                                 </Col>
                             ))}
                         </Row>
@@ -412,34 +388,22 @@ export default function ProfilePage() {
                         <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                             {visibleWantlist.map((item) => (
                                 <Col key={item.id}>
-                                    <Card
-                                        className="h-100 clickable-card"
-                                        role="button"
+                                    <MediaCard
+                                        thumb={item.basic_information.thumb}
+                                        alt={item.basic_information.title}
+                                        title={item.basic_information.title}
                                         onClick={() => navigate(`/release/${item.basic_information.id}`)}
                                     >
-                                        {item.basic_information.thumb ? (
-                                            <Card.Img
-                                                variant="top"
-                                                className="media-thumb"
-                                                src={item.basic_information.thumb}
-                                                alt={item.basic_information.title}
-                                            />
-                                        ) : (
-                                            <div className="media-thumb media-thumb-placeholder" />
+                                        {item.basic_information.artists?.[0] && (
+                                            <Button
+                                                variant="link"
+                                                className="p-0 text-start d-block mb-1 media-card-subtitle"
+                                                onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
+                                            >
+                                                {item.basic_information.artists[0].name}
+                                            </Button>
                                         )}
-                                        <Card.Body className="p-2">
-                                            <p className="mb-1 small">{item.basic_information.title}</p>
-                                            {item.basic_information.artists?.[0] && (
-                                                <Button
-                                                    variant="link"
-                                                    className="p-0 text-start small d-block"
-                                                    onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                                >
-                                                    {item.basic_information.artists[0].name}
-                                                </Button>
-                                            )}
-                                        </Card.Body>
-                                    </Card>
+                                    </MediaCard>
                                 </Col>
                             ))}
                         </Row>

@@ -13,6 +13,57 @@
     background: var(--code-bg, rgba(128, 128, 128, 0.12));
 }
 
-.clickable-card {
+/* Lets the album cover act as a second click target for the same release
+   as the title, so clicking the artwork works just like clicking the title. */
+.media-thumb-link {
     cursor: pointer;
+}
+
+/* Keeps card titles capped at two lines everywhere a MediaCard is used, so
+   a long title doesn't make one card taller than its neighbors in the grid.
+   Uses the heading font and a larger size so it reads as the card's most
+   prominent line. */
+.media-card-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--heading);
+    font-size: 1.15rem;
+    line-height: 1.25;
+}
+
+/* When the title is the card's click target (a Button variant="link"),
+   override Bootstrap's default link color/underline so it's neutral at
+   rest and only highlights (like a link) on hover/focus. */
+.media-card-title-link {
+    color: var(--text-h) !important;
+    text-decoration: none !important;
+}
+
+.media-card-title-link:hover,
+.media-card-title-link:focus {
+    color: var(--accent-hover) !important;
+}
+
+/* Artist name reads as a secondary line under the (larger, heading-font)
+   title — a lighter Inter weight and slightly smaller size than Bootstrap's
+   "small" keep it from competing with the title for attention. When it's a
+   link (Button variant="link"), override Bootstrap's accent color/underline
+   so it stays neutral instead of looking like the card's primary action. */
+.media-card-subtitle {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: var(--text) !important;
+    text-decoration: none !important;
+}
+
+/* Only highlight the artist name on hover/focus when it's actually a link
+   (the "Unknown Artist" fallback renders as a plain, non-interactive <p>
+   with this same class) — and match the same highlight color as the title
+   so both read as the card's clickable elements. */
+.btn.media-card-subtitle:hover,
+.btn.media-card-subtitle:focus {
+    color: var(--accent-hover) !important;
 }
