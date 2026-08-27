@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { Badge, Button, Card, Col } from "react-bootstrap";
+import { Badge, Button, Col } from "react-bootstrap";
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
-import "../styles/mediaThumb.css";
+import MediaCard from "./MediaCard";
 
 interface SearchResultViewProps {
     result: SearchResult;
@@ -24,55 +24,46 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
         navigate(`/artist?name=${encodeURIComponent(artist)}`);
     };
 
-    const handleGenreClick = (genre: string) => {
+    const handleGenreClick = (genre: string, e: React.MouseEvent) => {
+        // Stop the click from bubbling up to the surrounding card, which
+        // navigates to the release instead.
+        e.stopPropagation();
         // navigate to genre-filtered results once that route exists
         console.log("Clicked genre:", genre);
     };
 
     return (
         <Col>
-            <Card className="h-100">
-                {result.thumb ? (
-                    <Card.Img variant="top" className="media-thumb" src={result.thumb} alt={title} />
-                ) : (
-                    <div className="media-thumb media-thumb-placeholder" />
-                )}
-                <Card.Body>
+            <MediaCard thumb={result.thumb} alt={title} title={title} onClick={handleTitleClick}>
+                {hasKnownArtist ? (
                     <Button
                         variant="link"
-                        className="p-0 text-start text-decoration-none d-block"
-                        onClick={handleTitleClick}
+                        className="p-0 text-start d-block mb-1 media-card-subtitle"
+                        onClick={handleArtistClick}
                     >
-                        <Card.Title as="h3" className="h6 mb-1">
-                            {title}
-                        </Card.Title>
+                        {artist}
                     </Button>
-                    {hasKnownArtist ? (
-                        <Button variant="link" className="p-0 text-start" onClick={handleArtistClick}>
-                            {artist}
-                        </Button>
-                    ) : (
-                        <p className="mb-0">{artist}</p>
-                    )}
-                    <Card.Text>{result.year}</Card.Text>
-                    {result.genre && (
-                        <div className="d-flex flex-wrap gap-1">
-                            {result.genre.map((g) => (
-                                <Badge
-                                    as="button"
-                                    type="button"
-                                    key={g}
-                                    bg="secondary"
-                                    className="border-0"
-                                    onClick={() => handleGenreClick(g)}
-                                >
-                                    {g}
-                                </Badge>
-                            ))}
-                        </div>
-                    )}
-                </Card.Body>
-            </Card>
+                ) : (
+                    <p className="mb-1 media-card-subtitle">{artist}</p>
+                )}
+                <p className="mb-1 small">{result.year}</p>
+                {result.genre && (
+                    <div className="d-flex flex-wrap gap-1">
+                        {result.genre.map((g) => (
+                            <Badge
+                                as="button"
+                                type="button"
+                                key={g}
+                                bg="secondary"
+                                className="border-0"
+                                onClick={(e) => handleGenreClick(g, e)}
+                            >
+                                {g}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
+            </MediaCard>
         </Col>
     );
 };
