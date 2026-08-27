@@ -54,7 +54,7 @@ const SearchPage = () =>{
             },[query,genre]);
     if(loading)return(
         <Container fluid="lg" className="py-4">
-            <CardGridSkeleton count={8} xs={1} sm={2} md={3} lg={4} showBadgeRow />
+            <CardGridSkeleton count={8} xs={2} sm={2} md={3} lg={4} showBadgeRow />
         </Container>
     );
     if(error)return(
@@ -73,7 +73,7 @@ const SearchPage = () =>{
             <h2>
                 Results for "{query}"{genre ? ` in ${genre}`:""}
             </h2>
-            <Row xs={1} sm={2} md={3} lg={4} className="g-3">
+            <Row xs={2} sm={2} md={3} lg={4} className="g-3">
                 {results.map((result)=>(
                     <SearchResultView key={result.id} result={result}/>
                 ))}

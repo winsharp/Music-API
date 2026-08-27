@@ -79,9 +79,9 @@ const BrowseCatalogPage = () => {
                         <thead>
                         <tr>
                             <th>Title</th>
-                            <th>Artist</th>
-                            <th>Year</th>
-                            <th>Genre</th>
+                            <th className="d-none d-sm-table-cell">Artist</th>
+                            <th className="d-none d-sm-table-cell">Year</th>
+                            <th className="d-none d-sm-table-cell">Genre</th>
                         </tr>
                         </thead>
                         <tbody>
