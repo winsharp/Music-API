@@ -1,45 +1,10 @@
-/* Shared table styling for the catalog pages (Browse, Artist) — a plain
-   bordered grid rather than the app's default unstyled markup. */
-.browse-catalog-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.browse-catalog-table th,
-.browse-catalog-table td {
-    border: 1px solid var(--border, #ccc);
-    padding: 6px 10px;
-    text-align: left;
-    vertical-align: middle;
-}
-
-.browse-catalog-table th {
-    background: var(--accent-bg, #f0f0f0);
-    position: sticky;
-    top: 0;
-}
-
-.browse-catalog-table tbody tr:nth-child(even) {
-    background: var(--code-bg, rgba(128, 128, 128, 0.08));
-}
-
-.browse-catalog-table tbody tr:hover {
-    background: var(--accent-bg, rgba(128, 128, 128, 0.16));
-}
-
+/* Shared table styling for the catalog pages (Browse, Artist) — layered on
+   top of react-bootstrap's <Table>. */
 .browse-catalog-table img {
     display: block;
     margin-bottom: 4px;
 }
 
-.browse-catalog-table button {
-    background: none;
-    border: none;
-    padding: 0;
-    color: inherit;
-    font: inherit;
+.browse-catalog-table button.btn-link {
     text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
 }

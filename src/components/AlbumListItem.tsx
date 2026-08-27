@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
 import RateAndCollect from "./RateAndCollect";
@@ -27,16 +28,18 @@ const AlbumListItem = ({ album, existingEntry }: AlbumListItemProps) => {
     return (
         <tr>
             <td>
-                {album.thumb && <img src={album.thumb} alt={title} width={40} height={40} />}
-                <button type="button" onClick={handleTitleClick}>
-                    {title}
-                </button>
+                <div className="d-flex align-items-center gap-2">
+                    {album.thumb && <img src={album.thumb} alt={title} width={40} height={40} />}
+                    <Button variant="link" className="p-0 text-start" onClick={handleTitleClick}>
+                        {title}
+                    </Button>
+                </div>
             </td>
             <td>
                 {hasKnownArtist ? (
-                    <button type="button" onClick={handleArtistClick}>
+                    <Button variant="link" className="p-0 text-start" onClick={handleArtistClick}>
                         {artist}
-                    </button>
+                    </Button>
                 ) : (
                     artist
                 )}

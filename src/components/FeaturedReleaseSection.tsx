@@ -1,3 +1,4 @@
+import { Row } from "react-bootstrap";
 import type { DiscogsReleaseDetail } from "../types/discogsRelease";
 import FeaturedReleaseCard from "./FeaturedReleaseCard";
 
@@ -13,11 +14,11 @@ const FeaturedReleaseSection = ({ title, releases, getStat }: FeaturedReleaseSec
     return (
         <section className="featured-release-section">
             <h2>{title}</h2>
-            <div className="featured-release-grid">
+            <Row xs={2} sm={3} md={4} lg={6} className="g-3">
                 {releases.map((release) => (
                     <FeaturedReleaseCard key={release.id} release={release} stat={getStat(release)} />
                 ))}
-            </div>
+            </Row>
         </section>
     );
 };

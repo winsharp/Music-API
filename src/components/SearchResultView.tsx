@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { Badge, Button, Card, Col } from "react-bootstrap";
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
+import "../styles/mediaThumb.css";
 
 interface SearchResultViewProps {
     result: SearchResult;
@@ -26,30 +28,52 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
         // navigate to genre-filtered results once that route exists
         console.log("Clicked genre:", genre);
     };
+
     return (
-        <div>
-            {result.thumb && <img src={result.thumb} alt={title} />}
-            <button type="button" onClick={handleTitleClick}>
-                <h3>{title}</h3>
-            </button>
-            {hasKnownArtist ? (
-                <button type="button" onClick={handleArtistClick}>
-                    {artist}
-                </button>
-            ) : (
-                <p>{artist}</p>
-            )}
-            <p>{result.year}</p>
-            {result.genre && (
-                <p>
-                    {result.genre.map((g) => (
-                        <button type="button" key={g} onClick={() => handleGenreClick(g)}>
-                            {g}
-                        </button>
-                    ))}
-                </p>
-            )}
-        </div>
+        <Col>
+            <Card className="h-100">
+                {result.thumb ? (
+                    <Card.Img variant="top" className="media-thumb" src={result.thumb} alt={title} />
+                ) : (
+                    <div className="media-thumb media-thumb-placeholder" />
+                )}
+                <Card.Body>
+                    <Button
+                        variant="link"
+                        className="p-0 text-start text-decoration-none d-block"
+                        onClick={handleTitleClick}
+                    >
+                        <Card.Title as="h3" className="h6 mb-1">
+                            {title}
+                        </Card.Title>
+                    </Button>
+                    {hasKnownArtist ? (
+                        <Button variant="link" className="p-0 text-start" onClick={handleArtistClick}>
+                            {artist}
+                        </Button>
+                    ) : (
+                        <p className="mb-0">{artist}</p>
+                    )}
+                    <Card.Text>{result.year}</Card.Text>
+                    {result.genre && (
+                        <div className="d-flex flex-wrap gap-1">
+                            {result.genre.map((g) => (
+                                <Badge
+                                    as="button"
+                                    type="button"
+                                    key={g}
+                                    bg="secondary"
+                                    className="border-0"
+                                    onClick={() => handleGenreClick(g)}
+                                >
+                                    {g}
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
+                </Card.Body>
+            </Card>
+        </Col>
     );
 };
 

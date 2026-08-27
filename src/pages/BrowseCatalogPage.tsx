@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Alert, Container, Row, Col, Table } from "react-bootstrap";
 import axios from "axios";
 import { browseReleases } from "../services/browseService";
 import { discogsUserService } from "../services/discogsUserService";
@@ -10,7 +11,7 @@ import AlbumListItem from "../components/AlbumListItem";
 import GenreFilter from "../components/GenreFilter";
 import StyleFilter from "../components/StyleFilter";
 import Pagination from "../components/Pagination";
-import "../styles/catalogTable.css";
+import BrowseCatalogTableSkeleton from "../components/skeletons/BrowseCatalogTableSkeleton";
 
 const BrowseCatalogPage = () => {
     const [searchParams] = useSearchParams();
@@ -89,35 +90,43 @@ const BrowseCatalogPage = () => {
     }, [connection]);
 
     return (
-        <div>
+        <Container fluid="lg" className="py-4">
             <h2>Browse Catalog{filterLabel ? ` — ${filterLabel}` : ""}</h2>
-            <GenreFilter />
-            <StyleFilter />
-            {loading && <p>Loading...</p>}
-            {error && <p>{error}</p>}
+            <Row className="g-3 align-items-end mb-3">
+                <Col xs={12} sm={6} md={4}>
+                    <GenreFilter />
+                </Col>
+                <Col xs={12} sm={6} md={4}>
+                    <StyleFilter />
+                </Col>
+            </Row>
+            {loading && <BrowseCatalogTableSkeleton />}
+            {error && <Alert variant="danger">{error}</Alert>}
             {!loading && !error && !albums.length && <p>No albums found.</p>}
             {!loading && !error && albums.length > 0 && (
-                <table className="browse-catalog-table">
-                    <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Artist</th>
-                        <th>Year</th>
-                        <th>Genre</th>
-                        <th>Rate / Collect</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {albums.map((album) => (
-                        <AlbumListItem key={album.id} album={album} existingEntry={collectionMap.get(album.id)} />
-                    ))}
-                    </tbody>
-                </table>
+                <div className="table-responsive">
+                    <Table striped hover className="browse-catalog-table align-middle">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Artist</th>
+                            <th>Year</th>
+                            <th>Genre</th>
+                            <th>Rate / Collect</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {albums.map((album) => (
+                            <AlbumListItem key={album.id} album={album} existingEntry={collectionMap.get(album.id)} />
+                        ))}
+                        </tbody>
+                    </Table>
+                </div>
             )}
             {!loading && !error && albums.length > 0 && (
                 <Pagination currentPage={page} totalPages={totalPages} />
             )}
-        </div>
+        </Container>
     );
 };
 

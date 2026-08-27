@@ -2,6 +2,7 @@
 //
 import { useState} from "react";
 import {useNavigate} from "react-router-dom";
+import { Form, InputGroup, Button } from "react-bootstrap";
 
 interface SearchBoxProps{
     category?: string;
@@ -27,15 +28,20 @@ const SearchBox = ({category}: SearchBoxProps)=>{
     };
 
     return(
-      <form onSubmit={handleSubmit}>
-          <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for an album, artist..."
-          />
-          <button type="submit">Search</button>
-      </form>
+      <Form onSubmit={handleSubmit} className="w-100">
+          <InputGroup>
+              <Form.Control
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search for an album, artist..."
+                  aria-label="Search for an album, artist..."
+              />
+              <Button type="submit" variant="outline-secondary">
+                  Search
+              </Button>
+          </InputGroup>
+      </Form>
     );
 };
 

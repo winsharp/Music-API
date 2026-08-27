@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Container } from "react-bootstrap";
 import { getFeaturedReleases } from "../services/homeService";
 import type { FeaturedReleases } from "../services/homeService";
 import FeaturedReleaseSection from "../components/FeaturedReleaseSection";
@@ -15,8 +16,8 @@ const HomePage = () => {
     }, []);
 
     return (
-        <div className="home-page">
-            <section id="center">
+        <Container fluid="lg" className="home-page">
+            <section id="center" className="text-center py-4">
                 <h1>Discover Music</h1>
             </section>
 
@@ -41,7 +42,7 @@ const HomePage = () => {
                     />
                 </>
             )}
-        </div>
+        </Container>
     );
 };
 

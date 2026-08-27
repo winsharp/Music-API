@@ -1,5 +1,6 @@
 // Top-level navigation bar. Persists on every page except /login and /register.
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Container, Nav, Navbar } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext";
 import SearchBox from "./SearchBox";
 
@@ -18,21 +19,43 @@ const NavBar = () => {
     };
 
     return (
-        <nav>
-            <Link to="/">Home</Link>
-            <SearchBox />
-            <Link to="/browse">Browse Catalog</Link>
-            {user ? (
-                <>
-                    <Link to="/profile">Profile</Link>
-                    <button type="button" onClick={handleLogout}>
-                        Log Out
-                    </button>
-                </>
-            ) : (
-                <Link to="/login">Log In</Link>
-            )}
-        </nav>
+        <Navbar expand="lg" bg="dark" variant="dark" className="mb-3" collapseOnSelect>
+            <Container fluid>
+                <Navbar.Brand as={Link} to="/">
+                    Music API
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="main-navbar" />
+                <Navbar.Collapse id="main-navbar">
+                    <Nav className="me-auto">
+                        <Nav.Link as={Link} to="/">
+                            Home
+                        </Nav.Link>
+                        <Nav.Link as={Link} to="/browse">
+                            Browse Catalog
+                        </Nav.Link>
+                    </Nav>
+                    <div className="d-flex align-items-center gap-2 my-2 my-lg-0">
+                        <SearchBox />
+                    </div>
+                    <Nav className="ms-lg-2">
+                        {user ? (
+                            <>
+                                <Nav.Link as={Link} to="/profile">
+                                    Profile
+                                </Nav.Link>
+                                <Nav.Link as="button" type="button" onClick={handleLogout}>
+                                    Log Out
+                                </Nav.Link>
+                            </>
+                        ) : (
+                            <Nav.Link as={Link} to="/login">
+                                Log In
+                            </Nav.Link>
+                        )}
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     );
 };
 

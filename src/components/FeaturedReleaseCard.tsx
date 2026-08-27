@@ -1,3 +1,4 @@
+import { Card, Col } from "react-bootstrap";
 import type { DiscogsReleaseDetail } from "../types/discogsRelease";
 
 interface FeaturedReleaseCardProps {
@@ -14,14 +15,18 @@ const FeaturedReleaseCard = ({ release, stat }: FeaturedReleaseCardProps) => {
     };
 
     return (
-        <div className="featured-release-card">
-            {release.thumb && <img src={release.thumb} alt={release.title} width={80} height={80} />}
-            <button type="button" onClick={handleTitleClick}>
-                {release.title}
-            </button>
-            <p className="featured-release-artist">{artist}</p>
-            <p className="featured-release-stat">{stat}</p>
-        </div>
+        <Col>
+            <Card className="featured-release-card h-100">
+                {release.thumb && <Card.Img variant="top" src={release.thumb} alt={release.title} />}
+                <Card.Body className="p-2">
+                    <button type="button" className="featured-release-title-btn" onClick={handleTitleClick}>
+                        {release.title}
+                    </button>
+                    <p className="featured-release-artist mb-0">{artist}</p>
+                    <p className="featured-release-stat mb-0">{stat}</p>
+                </Card.Body>
+            </Card>
+        </Col>
     );
 };
 

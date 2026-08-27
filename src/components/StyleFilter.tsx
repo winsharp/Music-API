@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Form } from "react-bootstrap";
 import { DISCOGS_STYLES } from "../constants/styles";
 
 const StyleFilter = () => {
@@ -19,17 +20,17 @@ const StyleFilter = () => {
     };
 
     return (
-        <label>
-            Styles:
-            <select value={selectedStyle} onChange={handleChange}>
+        <Form.Group controlId="style-filter">
+            <Form.Label>Styles:</Form.Label>
+            <Form.Select value={selectedStyle} onChange={handleChange}>
                 <option value="">All Styles</option>
                 {DISCOGS_STYLES.map((style) => (
                     <option key={style} value={style}>
                         {style}
                     </option>
                 ))}
-            </select>
-        </label>
+            </Form.Select>
+        </Form.Group>
     );
 };
 
