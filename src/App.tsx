@@ -12,6 +12,8 @@ import DiscogsCallbackPage from './pages/DiscogsCallbackPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NavBar from './components/NavBar'
 import { AuthProvider } from './contexts/AuthContext'
+import RatingsMockPage from './pages/RatingsMockPage'
+import AllRatingsMockPage from './pages/AllRatingsMockPage'
 import './App.css'
 
 function App() {
@@ -27,7 +29,8 @@ function App() {
           <Route path="/release/:id" element={<ReleasePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route
+            <Route path="/ratings-mock" element={<AllRatingsMockPage />} />
+            <Route path="/profile-mock/:username" element={<RatingsMockPage />} />          <Route
               path="/profile"
               element={
                 <ProtectedRoute>
