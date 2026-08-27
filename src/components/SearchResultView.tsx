@@ -24,12 +24,10 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
         navigate(`/artist?name=${encodeURIComponent(artist)}`);
     };
 
-    const handleGenreClick = (genre: string, e: React.MouseEvent) => {
+    const handleGenreClick = (e: React.MouseEvent) => {
         // Stop the click from bubbling up to the surrounding card, which
         // navigates to the release instead.
         e.stopPropagation();
-        // navigate to genre-filtered results once that route exists
-        console.log("Clicked genre:", genre);
     };
 
     return (
@@ -56,7 +54,7 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
                                 key={g}
                                 bg="secondary"
                                 className="border-0"
-                                onClick={(e) => handleGenreClick(g, e)}
+                                onClick={handleGenreClick}
                             >
                                 {g}
                             </Badge>

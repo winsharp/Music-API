@@ -53,15 +53,4 @@ describe('SearchBox Component', () => {
 
         expect(mockNavigate).toHaveBeenCalledWith('/search?q=Random+Access+Memories');
     });
-
-    it('includes genre inside query parameters if category prop is passed', async () => {
-        render(<SearchBox category="Electronic" />);
-        const input = screen.getByPlaceholderText('Search for an album, artist...');
-        const button = screen.getByRole('button', { name: /search/i });
-
-        await userEvent.type(input, 'Discovery');
-        await userEvent.click(button);
-
-        expect(mockNavigate).toHaveBeenCalledWith('/search?q=Discovery&genre=Electronic');
-    });
 });

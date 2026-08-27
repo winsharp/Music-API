@@ -4,11 +4,7 @@ import { useState} from "react";
 import {useNavigate} from "react-router-dom";
 import { Form, InputGroup, Button } from "react-bootstrap";
 
-interface SearchBoxProps{
-    category?: string;
-}
-
-const SearchBox = ({category}: SearchBoxProps)=>{
+const SearchBox = ()=>{
     //setQuery function updates memory which memory is represented as query.
     //query is empty until setQuery updates it
     //when setQuery gets used, the component gets a new value
@@ -22,7 +18,6 @@ const SearchBox = ({category}: SearchBoxProps)=>{
         if(!trimmed) return;
 
         const params = new URLSearchParams({q: trimmed});
-        if(category) params.set("genre", category);
 
         navigate(`/search?${params.toString()}`);
     };
