@@ -66,4 +66,27 @@ describe("SearchPage", () => {
         const message = await screen.findByText(/server issues/i);
         expect(message).toBeInTheDocument();
     });
+
+    it("shows pagination controls reflecting the current page when there are multiple pages", async () => {
+        server.use(
+            http.get(`${BASE_URL}/database/search`, () => {
+                return HttpResponse.json({
+                    pagination: { page: 2, pages: 5, per_page: 50, items: 250 },
+                    results: mockSearchResults,
+                });
+            })
+        );
+
+        renderWithRoute("/search?q=nirvana&page=2");
+
+        const pageIndicator = await screen.findByText("Page 2 of 5");
+        expect(pageIndicator).toBeInTheDocument();
+    });
+
+    it("does not show pagination controls when there is only one page", async () => {
+        renderWithRoute("/search?q=nirvana");
+
+        await screen.findByText(mockSearchResults[0].title);
+        expect(screen.queryByText(/Page \d+ of \d+/)).not.toBeInTheDocument();
+    });
 });

@@ -5,14 +5,17 @@ import {searchReleases} from "../services/searchService";
 import type {SearchResult} from "../types/search";
 import SearchResultView from "../components/SearchResultView";
 import CardGridSkeleton from "../components/skeletons/CardGridSkeleton";
+import Pagination from "../components/Pagination";
 import axios from "axios";
 
 const SearchPage = () =>{
     const [searchParams] = useSearchParams();
     const query = searchParams.get("q")|| "";
     const genre = searchParams.get("genre")||undefined;
+    const page = Number(searchParams.get("page")) || 1;
 
     const [results,setResults] = useState<SearchResult[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading,setLoading] = useState(false);
     const [error,setError] = useState<string|null>(null);
 
@@ -23,8 +26,9 @@ const SearchPage = () =>{
             setLoading(true);
             setError(null);
             try {
-                const data = await searchReleases({query, genre});
+                const data = await searchReleases({query, genre, page});
                 setResults(data.results);
+                setTotalPages(data.pagination.pages);
             } catch (err) {
                 console.error(err);
                 if (axios.isAxiosError(err)) {
@@ -51,7 +55,7 @@ const SearchPage = () =>{
             }
         };
             fetchResults();
-            },[query,genre]);
+            },[query,genre,page]);
     if(loading)return(
         <Container fluid="lg" className="py-4">
             <CardGridSkeleton count={8} xs={1} sm={2} md={3} lg={4} showBadgeRow />
@@ -78,6 +82,7 @@ const SearchPage = () =>{
                     <SearchResultView key={result.id} result={result}/>
                 ))}
             </Row>
+            <Pagination currentPage={page} totalPages={totalPages} basePath="/search" />
         </Container>
     );
 };
