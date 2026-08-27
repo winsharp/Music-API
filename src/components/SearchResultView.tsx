@@ -1,13 +1,25 @@
+import { useNavigate } from "react-router-dom";
 import type { SearchResult } from "../types/search";
+import { parseAlbumTitle } from "../utils/parseAlbumTitle";
 
 interface SearchResultViewProps {
     result: SearchResult;
 }
 
 const SearchResultView = ({ result }: SearchResultViewProps) => {
+    const navigate = useNavigate();
+    const { artist, title } = parseAlbumTitle(result.title);
+    // parseAlbumTitle falls back to this literal string when a result's
+    // title has no "Artist - Title" separator to split on — not a real
+    // artist to look up on Discogs, so don't make it clickable.
+    const hasKnownArtist = artist !== "Unknown Artist";
+
     const handleTitleClick = () => {
-        //navigate to album/artist detail page once that route exists
-        console.log("Clicked:", result.title);
+        navigate(`/release/${result.id}`);
+    };
+
+    const handleArtistClick = () => {
+        navigate(`/artist?name=${encodeURIComponent(artist)}`);
     };
 
     const handleGenreClick = (genre: string) => {
@@ -16,10 +28,17 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
     };
     return (
         <div>
-            {result.thumb && <img src={result.thumb} alt={result.title} />}
+            {result.thumb && <img src={result.thumb} alt={title} />}
             <button type="button" onClick={handleTitleClick}>
-                <h3>{result.title}</h3>
+                <h3>{title}</h3>
             </button>
+            {hasKnownArtist ? (
+                <button type="button" onClick={handleArtistClick}>
+                    {artist}
+                </button>
+            ) : (
+                <p>{artist}</p>
+            )}
             <p>{result.year}</p>
             {result.genre && (
                 <p>
