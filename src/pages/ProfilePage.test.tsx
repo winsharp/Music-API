@@ -5,6 +5,7 @@ import ProfilePage from "./ProfilePage";
 import { discogsUserService } from "../services/discogsUserService";
 import { clearCache } from "../services/discogsUserCache";
 import { useAuth } from "../contexts/AuthContext";
+import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
 
 vi.mock("../services/discogsUserService", () => ({
@@ -303,5 +304,50 @@ describe("ProfilePage", () => {
         renderWithRoute("memory");
 
         await waitFor(() => expect(screen.getByText("memory's wantlist is private.")).toBeInTheDocument());
+    });
+
+    it("doesn't show the Connect Discogs option on another user's profile", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("memory")).toBeInTheDocument());
+        expect(screen.queryByText("Connect Discogs Account")).not.toBeInTheDocument();
+        expect(screen.queryByText(/Connected to Discogs as/)).not.toBeInTheDocument();
+    });
+
+    it("shows the Connect Discogs option on your own profile (app username fallback)", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue({ ...mockProfile, username: "jdoe" });
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        renderWithRoute("jdoe");
+
+        await waitFor(() => expect(screen.getByText("jdoe")).toBeInTheDocument());
+        expect(screen.getByText("Connect Discogs Account")).toBeInTheDocument();
+    });
+
+    it("shows the Connect Discogs option on your own profile (linked Discogs username)", async () => {
+        discogsAuthStorage.saveConnection("user-1", {
+            discogsUsername: "memory",
+            oauthToken: "token",
+            oauthTokenSecret: "secret",
+        });
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("memory")).toBeInTheDocument());
+        expect(screen.getByText(/Connected to Discogs as memory/)).toBeInTheDocument();
     });
 });

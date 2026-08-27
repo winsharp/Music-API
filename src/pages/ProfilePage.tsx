@@ -5,6 +5,7 @@ import { Alert, Card, Col, Container, Image, Row } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
+import { useAuth } from "../contexts/AuthContext";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
@@ -13,6 +14,11 @@ import "../styles/mediaThumb.css";
 export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
     const { connection } = useDiscogsConnection();
+    const { user } = useAuth();
+    // Mirrors the logic in MyProfileRedirect: the logged-in user's own
+    // profile is their linked Discogs account if connected, otherwise
+    // their app username as a best-effort guess/lookup.
+    const isOwnProfile = username === (connection?.discogsUsername ?? user?.username);
 
     const [profile, setProfile] = useState<DiscogsUserProfile | null>(null);
     const [collection, setCollection] = useState<CollectionRelease[]>([]);
@@ -171,7 +177,7 @@ export default function ProfilePage() {
                     {profile.num_collection} in collection · {profile.releases_rated} rated
                     {profile.releases_rated > 0 && ` (avg ${profile.rating_avg.toFixed(1)})`}
                 </p>
-                <ConnectDiscogsButton />
+                {isOwnProfile && <ConnectDiscogsButton />}
             </section>
 
             {!collectionError && recentlyRated.length > 0 && (
