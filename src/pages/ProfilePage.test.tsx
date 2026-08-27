@@ -279,6 +279,75 @@ describe("ProfilePage", () => {
         expect(discogsUserService.getListDetail).toHaveBeenCalledWith(listDetail.id, null);
     });
 
+    it("overrides another user's collection with a matching mock profile's rated releases", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue({ ...mockProfile, username: "jazzhead92" });
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+            releases: [collectionItem],
+        });
+
+        renderWithRoute("jazzhead92");
+
+        await waitFor(() => expect(screen.getAllByText("OK Computer").length).toBeGreaterThan(0));
+        expect(screen.queryByText("Abbey Road")).not.toBeInTheDocument();
+    });
+
+    it("synthesizes a profile from mock data when the mock username has no real Discogs account", async () => {
+        vi.mocked(discogsUserService.getProfile).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 404 },
+        });
+
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
+
+        renderWithRoute("jazzhead92");
+
+        await waitFor(() => expect(screen.getByText("jazzhead92")).toBeInTheDocument());
+        expect(screen.getAllByText("OK Computer").length).toBeGreaterThan(0);
+        expect(screen.queryByText(/No Discogs user found/)).not.toBeInTheDocument();
+    });
+
+    it("still shows the real 404 error for an unknown username with no matching mock profile", async () => {
+        vi.mocked(discogsUserService.getProfile).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 404 },
+        });
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
+
+        renderWithRoute("totally-unknown-user");
+
+        await waitFor(() =>
+            expect(screen.getByText('No Discogs user found for "totally-unknown-user".')).toBeInTheDocument()
+        );
+    });
+
+    it("doesn't override the logged-in user's own profile collection, even with a matching mock username", async () => {
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue({ ...mockProfile, username: "jazzhead92" });
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+            releases: [collectionItem],
+        });
+        vi.mocked(useAuth).mockReturnValue({
+            user: { ...mockAppUser, username: "jazzhead92" },
+            login: vi.fn(),
+            logout: vi.fn(),
+            register: vi.fn(),
+            updateUser: vi.fn(),
+        });
+
+        renderWithRoute("jazzhead92");
+
+        await waitFor(() => expect(screen.getAllByText("Abbey Road").length).toBeGreaterThan(0));
+        expect(screen.queryByText("OK Computer")).not.toBeInTheDocument();
+    });
+
     it("shows a private-lists message when the user's lists can't be read", async () => {
         vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
         vi.mocked(discogsUserService.getCollection).mockResolvedValue({

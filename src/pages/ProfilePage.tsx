@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
+import { mockProfiles } from "../tests/mockProfiles";
 import "../styles/mediaThumb.css";
 
 export default function ProfilePage() {
@@ -32,6 +33,11 @@ export default function ProfilePage() {
     // Whether this is the logged-in user's own profile (either their
     // unconnected app username, or their linked Discogs username).
     const isOwnProfile = !!user && (username === user.username || username === connection?.discogsUsername);
+
+    // Mock profiles (used for demoing rated-releases lists) can stand in for
+    // a real user's profile — but never for the logged-in user's own
+    // profile, so a real account's real data is never hidden behind mock data.
+    const mockProfile = !isOwnProfile ? mockProfiles.find((p) => p.username === username) : undefined;
 
     const [profile, setProfile] = useState<DiscogsUserProfile | null>(null);
     const [collection, setCollection] = useState<CollectionRelease[]>([]);
@@ -87,7 +93,23 @@ export default function ProfilePage() {
                 if (!cachedProfile) setCached(profileKey, profileData);
                 setProfile(profileData);
             } catch (err) {
-                if (axios.isAxiosError(err)) {
+                // Mock profiles don't correspond to real Discogs accounts, so
+                // a 404 here is expected — synthesize a profile from the mock
+                // data instead of dead-ending on an error page.
+                if (mockProfile && axios.isAxiosError(err) && err.response?.status === 404) {
+                    const ratingSum = mockProfile.ratedReleases.reduce((sum, r) => sum + r.rating, 0);
+                    const syntheticProfile: DiscogsUserProfile = {
+                        username: mockProfile.username,
+                        profile: "",
+                        avatar_url: mockProfile.avatarUrl,
+                        num_collection: mockProfile.ratedReleases.length,
+                        num_wantlist: 0,
+                        num_lists: 1,
+                        releases_rated: mockProfile.ratedReleases.length,
+                        rating_avg: mockProfile.ratedReleases.length ? ratingSum / mockProfile.ratedReleases.length : 0,
+                    };
+                    setProfile(syntheticProfile);
+                } else if (axios.isAxiosError(err)) {
                     if (!err.response) {
                         setError("Couldn't reach Discogs — check your internet connection and try again.");
                     } else if (err.response.status === 404) {
@@ -151,19 +173,38 @@ export default function ProfilePage() {
         };
 
         fetchProfile();
-    }, [username, connection]);
+    }, [username, connection, mockProfile]);
+
+    // The Collection section uses the mock profile's rated releases in place
+    // of a real Discogs collection (see the mockProfile lookup above).
+    const mockCollection: CollectionRelease[] | null = mockProfile
+        ? mockProfile.ratedReleases.map((release) => ({
+              id: release.id,
+              instance_id: release.id,
+              rating: release.rating,
+              date_added: new Date().toISOString(),
+              basic_information: {
+                  id: release.id,
+                  title: release.title,
+                  thumb: release.thumb,
+                  artists: [{ name: release.artist }],
+              },
+          }))
+        : null;
+    const displayCollection = mockCollection ?? collection;
+    const displayCollectionError = mockCollection ? null : collectionError;
 
     // Discogs doesn't expose a "date rated" — date_added (when the release
     // was added to the collection) is the closest proxy available.
     const recentlyRated = useMemo(
         () =>
-            collection
+            displayCollection
                 .filter((item) => item.rating > 0)
                 .sort((a, b) => new Date(b.date_added).getTime() - new Date(a.date_added).getTime()),
-        [collection]
+        [displayCollection]
     );
     const visibleRecentlyRated = recentlyRated.slice(0, SECTION_PAGE_SIZE);
-    const visibleCollection = collection.slice(0, SECTION_PAGE_SIZE);
+    const visibleCollection = displayCollection.slice(0, SECTION_PAGE_SIZE);
     const visibleWantlist = wantlist.slice(0, SECTION_PAGE_SIZE);
 
     if (loading) return (
@@ -211,7 +252,7 @@ export default function ProfilePage() {
                 {isOwnProfile && <ConnectDiscogsButton />}
             </section>
 
-            {!collectionError && recentlyRated.length > 0 && (
+            {!displayCollectionError && recentlyRated.length > 0 && (
                 <section className="mb-4">
                     <h2>Recently Rated</h2>
                     <Row xs={2} sm={3} md={4} lg={5} className="g-3">
@@ -267,9 +308,9 @@ export default function ProfilePage() {
 
             <section className="mb-4">
                 <h2>Collection</h2>
-                {collectionError ? (
-                    <Alert variant="warning" role="alert">{collectionError}</Alert>
-                ) : collection.length === 0 ? (
+                {displayCollectionError ? (
+                    <Alert variant="warning" role="alert">{displayCollectionError}</Alert>
+                ) : displayCollection.length === 0 ? (
                     <p>This user hasn't added any releases to their collection yet.</p>
                 ) : (
                     <>
@@ -315,7 +356,7 @@ export default function ProfilePage() {
                                 </Col>
                             ))}
                         </Row>
-                        {collection.length > SECTION_PAGE_SIZE && (
+                        {displayCollection.length > SECTION_PAGE_SIZE && (
                             <div className="text-center mt-2">
                                 <Link
                                     to={`/profile/${username}/collection`}
