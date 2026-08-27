@@ -44,4 +44,24 @@ export const mockProfiles: MockProfile[] = [
             },
         ],
     },
+    {
+  username: "adiones",
+  ratedReleases: [
+    {
+      id: 26132231,
+      title: "Dance Devil Dance",
+      artist: "Avatar (13)",
+      rating: 5,
+      thumb: "https://i.discogs.com/Laisdplv6YNcGXEhfnRWtpnDnRo2B7KIfp1kJQMJEr8/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI2MTMy/MjMxLTE3NTgwMDU2/MTctNjI5OS5qcGVn.jpeg"
+    },
+    {
+      id: 11126459,
+      title: "Master Of Puppets",
+      artist: "Metallica",
+      rating: 5,
+      thumb: "https://i.discogs.com/ePt-b6o7rHA5xBNwx16pN4s5VgdXKhEMZLzIMAmmEgM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExMTI2/NDU5LTE1Mjk4OTcx/MDYtMzg4MS5qcGVn.jpeg"
+    }
+  ]
+}
+
 ];

@@ -13,12 +13,8 @@ import "../styles/mediaThumb.css";
 
 export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
-    const { connection } = useDiscogsConnection();
     const { user } = useAuth();
-    // Mirrors the logic in MyProfileRedirect: the logged-in user's own
-    // profile is their linked Discogs account if connected, otherwise
-    // their app username as a best-effort guess/lookup.
-    const isOwnProfile = username === (connection?.discogsUsername ?? user?.username);
+    const { connection } = useDiscogsConnection();
     const navigate = useNavigate();
 
     const handleArtistClick = (e: React.MouseEvent, artistName: string) => {
@@ -27,6 +23,15 @@ export default function ProfilePage() {
         e.stopPropagation();
         navigate(`/artist?name=${encodeURIComponent(artistName)}`);
     };
+
+    // "/profile" guesses that the app username matches a real Discogs
+    // username when no account is linked yet. If that guess is wrong, the
+    // lookup 404s — don't leave the user stuck on a dead-end error with no
+    // way to link their real account.
+    const isOwnUnlinkedGuess = !connection && !!user && user.username === username;
+    // Whether this is the logged-in user's own profile (either their
+    // unconnected app username, or their linked Discogs username).
+    const isOwnProfile = !!user && (username === user.username || username === connection?.discogsUsername);
 
     const [profile, setProfile] = useState<DiscogsUserProfile | null>(null);
     const [collection, setCollection] = useState<CollectionRelease[]>([]);
@@ -166,6 +171,21 @@ export default function ProfilePage() {
             <ProfilePageSkeleton />
         </Container>
     );
+    if (error && isOwnUnlinkedGuess) return (
+        <Container fluid="lg" className="py-4">
+            <section className="text-center mb-3">
+                <h1>{user?.username}</h1>
+                <p className="text-muted mb-0">Logged in as {user?.username}</p>
+            </section>
+            <Alert variant="warning" role="alert">
+                We couldn't find a Discogs account matching your username ("{username}"). Connect your real
+                Discogs account below to load your profile.
+            </Alert>
+            <div className="text-center">
+                <ConnectDiscogsButton />
+            </div>
+        </Container>
+    );
     if (error) return (
         <Container fluid="lg" className="py-4">
             <Alert variant="danger" role="alert">{error}</Alert>
@@ -180,6 +200,9 @@ export default function ProfilePage() {
                     <Image src={profile.avatar_url} alt={profile.username} roundedCircle width={96} height={96} className="mb-2" />
                 )}
                 <h1>{profile.username}</h1>
+                {isOwnProfile && connection && (
+                    <p className="text-muted mb-0">Logged in as {user?.username}</p>
+                )}
                 {profile.location && <p>{profile.location}</p>}
                 <p>
                     {profile.num_collection} in collection · {profile.releases_rated} rated
