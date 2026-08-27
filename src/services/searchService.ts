@@ -8,16 +8,20 @@ import type{ SearchResponse} from "../types/search";
 const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
 //read the token from env. file
 const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
+//how many results to show per page of search results
+const PER_PAGE = 25;
 
 //what the function expects, a string and an optional
 interface SearchParams{
     query: string;
     genre?: string;
+    page?: number;
 }
 //network request so we need async and await
 export const searchReleases = async({
     query,
     genre,
+    page,
 }: SearchParams): Promise<SearchResponse> => {
     //axios does a get, searchResponse tells ts the shape of the response so ide can autocomplete or catch errors
     const response = await axios.get<SearchResponse>(`${BASE_URL}/database/search`, {
@@ -26,6 +30,8 @@ export const searchReleases = async({
             type: "release",
             genre,
             token: TOKEN,
+            page,
+            per_page: PER_PAGE,
         },
     });
    //axio wraps the response object. .data is JSON body -this is what we are going to use
