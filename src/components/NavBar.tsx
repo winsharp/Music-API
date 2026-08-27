@@ -26,18 +26,15 @@ const NavBar = () => {
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="main-navbar" />
                 <Navbar.Collapse id="main-navbar">
-                    <Nav className="me-auto">
-                        <Nav.Link as={Link} to="/">
-                            Home
-                        </Nav.Link>
+                    <div className="d-flex align-items-center gap-2 my-2 my-lg-0 order-first order-lg-2">
+                        <SearchBox />
+                    </div>
+                    <Nav className="me-auto order-lg-1">
                         <Nav.Link as={Link} to="/browse">
                             Browse Catalog
                         </Nav.Link>
                     </Nav>
-                    <div className="d-flex align-items-center gap-2 my-2 my-lg-0">
-                        <SearchBox />
-                    </div>
-                    <Nav className="ms-lg-2">
+                    <Nav className="ms-lg-2 order-lg-3">
                         {user ? (
                             <>
                                 <Nav.Link as={Link} to="/profile">
