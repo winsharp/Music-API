@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Alert, Container, ListGroup } from "react-bootstrap";
+import { Alert, Badge, Card, Col, Container, Image, ListGroup, Row } from "react-bootstrap";
 import { getRelease } from "../services/releaseService";
 import { releaseCollectionService } from "../services/releaseCollectionService";
 import { discogsUserService } from "../services/discogsUserService";
@@ -10,6 +10,7 @@ import type { ReleaseDetail } from "../types/release";
 import ReleaseDetailSkeleton from "../components/skeletons/ReleaseDetailSkeleton";
 import RateAndCollect from "../components/RateAndCollect";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import "../styles/mediaThumb.css";
 
 const ReleasePage = () => {
     const { id } = useParams<{ id: string }>();
@@ -85,36 +86,61 @@ const ReleasePage = () => {
 
     return (
         <Container fluid="lg" className="py-4">
-            <h2>{release.title}</h2>
-            {release.artists && release.artists.length > 0 && (
-                <p>
-                    By{" "}
-                    {release.artists.map((artist, index) => (
-                        <span key={artist.id}>
-                            {index > 0 && ", "}
-                            <Link to={`/artist?id=${artist.id}`}>{artist.name}</Link>
-                        </span>
-                    ))}
-                </p>
-            )}
-            <p>Release Year: {release.year ?? "Unknown"}</p>
-            <p>Genre: {release.genres && release.genres.length > 0 ? release.genres.join(", ") : "Unknown"}</p>
-            <div className="mb-3">
-                <RateAndCollect releaseId={release.id} existingEntry={existingEntry} inWantlist={inWantlist} />
-            </div>
-            <h3>Tracklist</h3>
-            {tracks.length === 0 ? (
-                <p>No tracklist available.</p>
-            ) : (
-                <ListGroup as="ol" numbered className="mx-auto" style={{ maxWidth: 600 }}>
-                    {tracks.map((track, index) => (
-                        <ListGroup.Item as="li" key={`${track.position}-${index}`} className="text-start">
-                            {track.title}
-                            {track.duration ? ` (${track.duration})` : ""}
-                        </ListGroup.Item>
-                    ))}
-                </ListGroup>
-            )}
+            <Card className="p-3 p-md-4 mb-4">
+                <Row className="g-4 align-items-center">
+                    <Col xs={5} sm={4} md={3} className="mx-auto mx-sm-0">
+                        {release.thumb ? (
+                            <Image src={release.thumb} alt={release.title} className="media-thumb rounded" />
+                        ) : (
+                            <div className="media-thumb media-thumb-placeholder rounded d-flex align-items-center justify-content-center">
+                                <span className="text-muted small">No image available</span>
+                            </div>
+                        )}
+                    </Col>
+                    <Col xs={12} sm={8} md={9}>
+                        <h2 className="mb-1">{release.title}</h2>
+                        {release.artists && release.artists.length > 0 && (
+                            <p className="mb-2 fs-5">
+                                {release.artists.map((artist, index) => (
+                                    <span key={artist.id}>
+                                        {index > 0 && ", "}
+                                        <Link to={`/artist?id=${artist.id}`}>{artist.name}</Link>
+                                    </span>
+                                ))}
+                            </p>
+                        )}
+                        <p className="text-muted mb-3">{release.year ?? "Unknown year"}</p>
+                        {((release.genres && release.genres.length > 0) || (release.styles && release.styles.length > 0)) && (
+                            <div className="d-flex flex-wrap gap-2 mb-3">
+                                {release.genres?.map((genre) => (
+                                    <Badge key={genre} bg="secondary">{genre}</Badge>
+                                ))}
+                                {release.styles?.map((style) => (
+                                    <Badge key={style} bg="dark">{style}</Badge>
+                                ))}
+                            </div>
+                        )}
+                        <div className="pt-2 border-top">
+                            <RateAndCollect releaseId={release.id} existingEntry={existingEntry} inWantlist={inWantlist} />
+                        </div>
+                    </Col>
+                </Row>
+            </Card>
+            <Card className="p-3 p-md-4">
+                <h3>Tracklist</h3>
+                {tracks.length === 0 ? (
+                    <p>No tracklist available.</p>
+                ) : (
+                    <ListGroup as="ol" numbered className="mx-auto" style={{ maxWidth: 600 }}>
+                        {tracks.map((track, index) => (
+                            <ListGroup.Item as="li" key={`${track.position}-${index}`} className="text-start">
+                                {track.title}
+                                {track.duration ? ` (${track.duration})` : ""}
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                )}
+            </Card>
         </Container>
     );
 };

@@ -50,8 +50,8 @@ describe("ReleasePage", () => {
 
         expect(await screen.findByText("OK Computer")).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "Radiohead" })).toHaveAttribute("href", "/artist?id=3840");
-        expect(screen.getByText(/release year:\s*1997/i)).toBeInTheDocument();
-        expect(screen.getByText(/genre:\s*rock/i)).toBeInTheDocument();
+        expect(screen.getByText("1997")).toBeInTheDocument();
+        expect(screen.getByText("Rock")).toBeInTheDocument();
         expect(screen.getByText("Airbag (4:44)")).toBeInTheDocument();
         expect(screen.getByText("Paranoid Android (6:23)")).toBeInTheDocument();
     });
