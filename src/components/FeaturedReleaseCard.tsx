@@ -1,4 +1,5 @@
 import { Card, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import type { DiscogsReleaseDetail } from "../types/discogsRelease";
 
 interface FeaturedReleaseCardProps {
@@ -8,10 +9,17 @@ interface FeaturedReleaseCardProps {
 
 const FeaturedReleaseCard = ({ release, stat }: FeaturedReleaseCardProps) => {
     const artist = release.artists?.[0]?.name ?? "Unknown Artist";
+    const navigate = useNavigate();
+    // Fallback used above when a release has no artist data - not a real
+    // artist to look up, so don't make it clickable.
+    const hasKnownArtist = artist !== "Unknown Artist";
 
     const handleTitleClick = () => {
-        // navigate to album/artist detail page once that route exists
-        console.log("Clicked:", release.title);
+        navigate(`/release/${release.id}`);
+    };
+
+    const handleArtistClick = () => {
+        navigate(`/artist?name=${encodeURIComponent(artist)}`);
     };
 
     return (
@@ -22,7 +30,17 @@ const FeaturedReleaseCard = ({ release, stat }: FeaturedReleaseCardProps) => {
                     <button type="button" className="featured-release-title-btn" onClick={handleTitleClick}>
                         {release.title}
                     </button>
-                    <p className="featured-release-artist mb-0">{artist}</p>
+                    {hasKnownArtist ? (
+                        <button
+                            type="button"
+                            className="featured-release-title-btn featured-release-artist mb-0"
+                            onClick={handleArtistClick}
+                        >
+                            {artist}
+                        </button>
+                    ) : (
+                        <p className="featured-release-artist mb-0">{artist}</p>
+                    )}
                     <p className="featured-release-stat mb-0">{stat}</p>
                 </Card.Body>
             </Card>

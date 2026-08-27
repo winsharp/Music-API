@@ -12,3 +12,7 @@
 .media-thumb-placeholder {
     background: var(--code-bg, rgba(128, 128, 128, 0.12));
 }
+
+.clickable-card {
+    cursor: pointer;
+}
