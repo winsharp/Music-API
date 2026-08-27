@@ -1,3 +1,4 @@
+import { Alert, Button } from "react-bootstrap";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
 
 const ConnectDiscogsButton = () => {
@@ -6,18 +7,18 @@ const ConnectDiscogsButton = () => {
     return (
         <div>
             {connection ? (
-                <p>
+                <p className="d-flex align-items-center justify-content-center gap-2 mb-0">
                     Connected to Discogs as {connection.discogsUsername}{" "}
-                    <button type="button" onClick={disconnect}>
+                    <Button variant="outline-secondary" size="sm" onClick={disconnect}>
                         Disconnect
-                    </button>
+                    </Button>
                 </p>
             ) : (
-                <button type="button" onClick={connect} disabled={connecting}>
+                <Button variant="primary" onClick={connect} disabled={connecting}>
                     {connecting ? "Connecting..." : "Connect Discogs Account"}
-                </button>
+                </Button>
             )}
-            {error && <p role="alert">{error}</p>}
+            {error && <Alert variant="danger" role="alert" className="mt-2">{error}</Alert>}
         </div>
     );
 };

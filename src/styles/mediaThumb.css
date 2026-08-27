@@ -1,0 +1,14 @@
+/* Discogs thumbnails are served "fit-in" a 300x300 box — real album art is
+   essentially square, so cropping to a 1:1 aspect ratio (rather than a fixed
+   pixel height) keeps thumbnails proportional to the card at every grid
+   breakpoint instead of looking stretched/cramped when column widths change. */
+.media-thumb {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    width: 100%;
+    display: block;
+}
+
+.media-thumb-placeholder {
+    background: var(--code-bg, rgba(128, 128, 128, 0.12));
+}

@@ -6,28 +6,12 @@
     margin-bottom: 16px;
 }
 
-.featured-release-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
-}
-
-.featured-release-card {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 8px;
-    border: 1px solid var(--border, #ccc);
-    border-radius: 6px;
-    text-align: left;
-}
-
 .featured-release-card img {
     align-self: center;
-    border-radius: 4px;
+    border-radius: 4px 4px 0 0;
 }
 
-.featured-release-card button {
+.featured-release-title-btn {
     background: none;
     border: none;
     padding: 0;
@@ -36,6 +20,8 @@
     text-align: left;
     cursor: pointer;
     text-decoration: underline;
+    display: block;
+    width: 100%;
 }
 
 .featured-release-artist {

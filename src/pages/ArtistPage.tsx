@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Alert, Container, Placeholder, Table } from "react-bootstrap";
 import { getArtist, getArtistReleases, findArtistIdByName } from "../services/artistService";
 import type { ArtistProfile, ArtistRelease } from "../types/artist";
 import Pagination from "../components/Pagination";
+import ArtistReleasesTableSkeleton from "../components/skeletons/ArtistReleasesTableSkeleton";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import "../styles/catalogTable.css";
 
@@ -49,40 +51,60 @@ const ArtistPage = () => {
         fetchArtist();
     }, [idParam, nameParam, page, hasArtistParam]);
 
-    if (!hasArtistParam) return <p>No artist specified.</p>;
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
+    if (!hasArtistParam) return (
+        <Container fluid="lg" className="py-4">
+            <p>No artist specified.</p>
+        </Container>
+    );
+    if (loading) return (
+        <Container fluid="lg" className="py-4">
+            <Placeholder as="h2" animation="glow">
+                <Placeholder xs={4} />
+            </Placeholder>
+            <Placeholder as="h3" animation="glow">
+                <Placeholder xs={2} />
+            </Placeholder>
+            <ArtistReleasesTableSkeleton />
+        </Container>
+    );
+    if (error) return (
+        <Container fluid="lg" className="py-4">
+            <Alert variant="danger">{error}</Alert>
+        </Container>
+    );
     if (!artist) return null;
 
     return (
-        <div>
+        <Container fluid="lg" className="py-4">
             <h2>{artist.name}</h2>
             {artist.profile && <p>{artist.profile}</p>}
             <h3>Releases</h3>
             {releases.length === 0 ? (
                 <p>No releases found.</p>
             ) : (
-                <table className="browse-catalog-table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Year</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {releases.map((release) => (
-                            <tr key={release.id}>
-                                <td>
-                                    <Link to={`/release/${release.id}`}>{release.title}</Link>
-                                </td>
-                                <td>{release.year}</td>
+                <div className="table-responsive">
+                    <Table striped hover className="browse-catalog-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Year</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {releases.map((release) => (
+                                <tr key={release.id}>
+                                    <td>
+                                        <Link to={`/release/${release.id}`}>{release.title}</Link>
+                                    </td>
+                                    <td>{release.year}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
             )}
             <Pagination currentPage={page} totalPages={totalPages} basePath="/artist" />
-        </div>
+        </Container>
     );
 };
 

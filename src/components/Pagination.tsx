@@ -25,18 +25,33 @@ const Pagination = ({ currentPage, totalPages, basePath = "/browse" }: Paginatio
     if (totalPages <= 1) return null;
 
     return (
-        <div>
-            <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1}>
-                Previous
-            </button>
-            <span>
-                {" "}
-                Page {currentPage} of {totalPages}{" "}
-            </span>
-            <button type="button" onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages}>
-                Next
-            </button>
-        </div>
+        <ul className="pagination justify-content-center flex-wrap">
+            <li className={`page-item${currentPage <= 1 ? " disabled" : ""}`}>
+                <button
+                    type="button"
+                    className="page-link"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                >
+                    Previous
+                </button>
+            </li>
+            <li className="page-item disabled">
+                <span className="page-link">
+                    Page {currentPage} of {totalPages}
+                </span>
+            </li>
+            <li className={`page-item${currentPage >= totalPages ? " disabled" : ""}`}>
+                <button
+                    type="button"
+                    className="page-link"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                >
+                    Next
+                </button>
+            </li>
+        </ul>
     );
 };
 

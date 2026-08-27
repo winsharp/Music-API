@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Alert, Container, ListGroup } from "react-bootstrap";
 import { getRelease } from "../services/releaseService";
 import type { ReleaseDetail } from "../types/release";
+import ReleaseDetailSkeleton from "../components/skeletons/ReleaseDetailSkeleton";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 const ReleasePage = () => {
@@ -31,8 +33,16 @@ const ReleasePage = () => {
         fetchRelease();
     }, [id]);
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading) return (
+        <Container fluid="lg" className="py-4">
+            <ReleaseDetailSkeleton />
+        </Container>
+    );
+    if (error) return (
+        <Container fluid="lg" className="py-4">
+            <Alert variant="danger">{error}</Alert>
+        </Container>
+    );
     if (!release) return null;
 
     // Discogs tracklists can include non-song rows (LP side headings, disc
@@ -40,7 +50,7 @@ const ReleasePage = () => {
     const tracks = (release.tracklist || []).filter((track) => track.type_ === "track");
 
     return (
-        <div>
+        <Container fluid="lg" className="py-4">
             <h2>{release.title}</h2>
             {release.artists && release.artists.length > 0 && (
                 <p>
@@ -59,16 +69,16 @@ const ReleasePage = () => {
             {tracks.length === 0 ? (
                 <p>No tracklist available.</p>
             ) : (
-                <ol>
+                <ListGroup as="ol" numbered className="mx-auto" style={{ maxWidth: 600 }}>
                     {tracks.map((track, index) => (
-                        <li key={`${track.position}-${index}`}>
+                        <ListGroup.Item as="li" key={`${track.position}-${index}`} className="text-start">
                             {track.title}
                             {track.duration ? ` (${track.duration})` : ""}
-                        </li>
+                        </ListGroup.Item>
                     ))}
-                </ol>
+                </ListGroup>
             )}
-        </div>
+        </Container>
     );
 };
 

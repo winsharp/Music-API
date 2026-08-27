@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Form } from "react-bootstrap";
 import { DISCOGS_GENRES } from "../constants/genres";
 
 const GenreFilter = () => {
@@ -19,17 +20,17 @@ const GenreFilter = () => {
     };
 
     return (
-        <label>
-            Genre:
-            <select value={selectedGenre} onChange={handleChange}>
+        <Form.Group controlId="genre-filter">
+            <Form.Label>Genre:</Form.Label>
+            <Form.Select value={selectedGenre} onChange={handleChange}>
                 <option value="">All Genres</option>
                 {DISCOGS_GENRES.map((genre) => (
                     <option key={genre} value={genre}>
                         {genre}
                     </option>
                 ))}
-            </select>
-        </label>
+            </Form.Select>
+        </Form.Group>
     );
 };
 

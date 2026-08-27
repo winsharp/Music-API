@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import { releaseCollectionService } from "../services/releaseCollectionService";
@@ -41,20 +42,21 @@ const RateAndCollect = ({ releaseId, existingEntry }: RateAndCollectProps) => {
     };
 
     if (!user) return null;
-    if (!connection) return <p>Connect your Discogs account to rate and save releases.</p>;
+    if (!connection) return <p className="mb-0 small">Connect your Discogs account to rate and save releases.</p>;
 
     return (
         <div>
             {!instanceId ? (
-                <button type="button" onClick={handleAddToCollection} disabled={status === "saving"}>
+                <Button variant="primary" size="sm" onClick={handleAddToCollection} disabled={status === "saving"}>
                     {status === "saving" ? "Saving..." : "Save to Collection"}
-                </button>
+                </Button>
             ) : (
-                <div>
+                <div className="d-flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
                         <button
                             type="button"
                             key={n}
+                            className="btn btn-link p-0 border-0 fs-5 lh-1"
                             onClick={() => handleRate(n)}
                             disabled={status === "saving"}
                         >
@@ -63,7 +65,7 @@ const RateAndCollect = ({ releaseId, existingEntry }: RateAndCollectProps) => {
                     ))}
                 </div>
             )}
-            {status === "error" && <p>Something went wrong. Please try again.</p>}
+            {status === "error" && <p className="text-danger small mb-0">Something went wrong. Please try again.</p>}
         </div>
     );
 };

@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Alert, Card, Col, Container, Image, Row } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
+import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
+import "../styles/mediaThumb.css";
 
 export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
@@ -111,14 +114,24 @@ export default function ProfilePage() {
         [collection]
     );
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p role="alert">{error}</p>;
+    if (loading) return (
+        <Container fluid="lg" className="py-4">
+            <ProfilePageSkeleton />
+        </Container>
+    );
+    if (error) return (
+        <Container fluid="lg" className="py-4">
+            <Alert variant="danger" role="alert">{error}</Alert>
+        </Container>
+    );
     if (!profile) return null;
 
     return (
-        <div>
-            <section>
-                {profile.avatar_url && <img src={profile.avatar_url} alt={profile.username} />}
+        <Container fluid="lg" className="py-4">
+            <section className="text-center mb-4">
+                {profile.avatar_url && (
+                    <Image src={profile.avatar_url} alt={profile.username} roundedCircle width={96} height={96} className="mb-2" />
+                )}
                 <h1>{profile.username}</h1>
                 {profile.location && <p>{profile.location}</p>}
                 <p>
@@ -129,102 +142,139 @@ export default function ProfilePage() {
             </section>
 
             {!collectionError && recentlyRated.length > 0 && (
-                <section>
+                <section className="mb-4">
                     <h2>Recently Rated</h2>
-                    <div>
+                    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                         {recentlyRated.map((item) => (
-                            <div key={item.instance_id}>
-                                {item.basic_information.thumb && (
-                                    <img src={item.basic_information.thumb} alt={item.basic_information.title} />
-                                )}
-                                <p>{item.basic_information.title}</p>
-                                <div>
-                                    {[1, 2, 3, 4, 5].map((n) => (
-                                        <span key={n} aria-hidden="true">
-                                            {item.rating >= n ? "★" : "☆"}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
+                            <Col key={item.instance_id}>
+                                <Card className="h-100">
+                                    {item.basic_information.thumb ? (
+                                        <Card.Img
+                                            variant="top"
+                                            className="media-thumb"
+                                            src={item.basic_information.thumb}
+                                            alt={item.basic_information.title}
+                                        />
+                                    ) : (
+                                        <div className="media-thumb media-thumb-placeholder" />
+                                    )}
+                                    <Card.Body className="p-2">
+                                        <p className="mb-1 small">{item.basic_information.title}</p>
+                                        <div>
+                                            {[1, 2, 3, 4, 5].map((n) => (
+                                                <span key={n} aria-hidden="true">
+                                                    {item.rating >= n ? "★" : "☆"}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
                         ))}
-                    </div>
+                    </Row>
                 </section>
             )}
 
-            <section>
+            <section className="mb-4">
                 <h2>Collection</h2>
                 {collectionError ? (
-                    <p role="alert">{collectionError}</p>
+                    <Alert variant="warning" role="alert">{collectionError}</Alert>
                 ) : collection.length === 0 ? (
                     <p>This user hasn't added any releases to their collection yet.</p>
                 ) : (
-                    <div>
+                    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                         {collection.map((item) => (
-                            <div key={item.instance_id}>
-                                {item.basic_information.thumb && (
-                                    <img src={item.basic_information.thumb} alt={item.basic_information.title} />
-                                )}
-                                <p>{item.basic_information.title}</p>
-                                <div>
-                                    {[1, 2, 3, 4, 5].map((n) => (
-                                        <span key={n} aria-hidden="true">
-                                            {item.rating >= n ? "★" : "☆"}
-                                        </span>
-                                    ))}
-                                    {item.rating === 0 && <span> Not rated</span>}
-                                </div>
-                            </div>
+                            <Col key={item.instance_id}>
+                                <Card className="h-100">
+                                    {item.basic_information.thumb ? (
+                                        <Card.Img
+                                            variant="top"
+                                            className="media-thumb"
+                                            src={item.basic_information.thumb}
+                                            alt={item.basic_information.title}
+                                        />
+                                    ) : (
+                                        <div className="media-thumb media-thumb-placeholder" />
+                                    )}
+                                    <Card.Body className="p-2">
+                                        <p className="mb-1 small">{item.basic_information.title}</p>
+                                        <div>
+                                            {[1, 2, 3, 4, 5].map((n) => (
+                                                <span key={n} aria-hidden="true">
+                                                    {item.rating >= n ? "★" : "☆"}
+                                                </span>
+                                            ))}
+                                            {item.rating === 0 && <span> Not rated</span>}
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
                         ))}
-                    </div>
+                    </Row>
                 )}
             </section>
 
-            <section>
+            <section className="mb-4">
                 <h2>Lists</h2>
                 {listsError ? (
-                    <p role="alert">{listsError}</p>
+                    <Alert variant="warning" role="alert">{listsError}</Alert>
                 ) : lists.length === 0 ? (
                     <p>This user hasn't created any lists yet.</p>
                 ) : (
-                    <div>
+                    <Row xs={1} md={2} className="g-3">
                         {lists.map((list) => (
-                            <div key={list.id}>
-                                <h3>{list.name}</h3>
-                                {list.description && <p>{list.description}</p>}
-                                {list.items.length === 0 ? (
-                                    <p>This list is empty.</p>
-                                ) : (
-                                    <ul>
-                                        {list.items.map((item) => (
-                                            <li key={item.id}>{item.display_title}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
+                            <Col key={list.id}>
+                                <Card className="h-100">
+                                    <Card.Body>
+                                        <Card.Title as="h3" className="h5">{list.name}</Card.Title>
+                                        {list.description && <Card.Text>{list.description}</Card.Text>}
+                                        {list.items.length === 0 ? (
+                                            <p className="mb-0">This list is empty.</p>
+                                        ) : (
+                                            <ul className="mb-0">
+                                                {list.items.map((item) => (
+                                                    <li key={item.id}>{item.display_title}</li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </Card.Body>
+                                </Card>
+                            </Col>
                         ))}
-                    </div>
+                    </Row>
                 )}
             </section>
 
             <section>
                 <h2>Wantlist</h2>
                 {wantlistError ? (
-                    <p role="alert">{wantlistError}</p>
+                    <Alert variant="warning" role="alert">{wantlistError}</Alert>
                 ) : wantlist.length === 0 ? (
                     <p>This user hasn't added anything to their wantlist yet.</p>
                 ) : (
-                    <div>
+                    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                         {wantlist.map((item) => (
-                            <div key={item.id}>
-                                {item.basic_information.thumb && (
-                                    <img src={item.basic_information.thumb} alt={item.basic_information.title} />
-                                )}
-                                <p>{item.basic_information.title}</p>
-                            </div>
+                            <Col key={item.id}>
+                                <Card className="h-100">
+                                    {item.basic_information.thumb ? (
+                                        <Card.Img
+                                            variant="top"
+                                            className="media-thumb"
+                                            src={item.basic_information.thumb}
+                                            alt={item.basic_information.title}
+                                        />
+                                    ) : (
+                                        <div className="media-thumb media-thumb-placeholder" />
+                                    )}
+                                    <Card.Body className="p-2">
+                                        <p className="mb-0 small">{item.basic_information.title}</p>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
                         ))}
-                    </div>
+                    </Row>
                 )}
             </section>
-        </div>
+        </Container>
     );
 }

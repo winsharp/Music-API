@@ -1,23 +1,31 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  /* "Vinyl store" palette — warm dark browns with a burnt-orange/mustard
+     accent, used year-round (not tied to prefers-color-scheme). */
+  --text: #b8ada1; /* secondary text: warm gray */
+  --text-h: #faf3e0; /* primary text: aged cream */
+  --bg: #1c1917; /* main background: espresso */
+  --surface: #292524; /* cards: dark brown */
+  --surface-elevated: #3a3330; /* elevated surface: warm charcoal */
+  --border: #4a403a; /* border: muted brown */
+  --code-bg: #292524;
+  --accent: #ea6a2a; /* primary accent: burnt orange */
+  --accent-hover: #f59e42; /* accent hover: amber orange */
+  --accent-2: #d4a72c; /* secondary accent: mustard */
+  --accent-on: #1c1917; /* text color used on top of accent-colored surfaces */
+  --accent-bg: rgba(234, 106, 42, 0.15);
+  --accent-border: rgba(234, 106, 42, 0.5);
+  --social-bg: rgba(58, 51, 48, 0.6);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* Inter for UI/body copy, DM Serif Display for headings/branding. */
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'DM Serif Display', Georgia, 'Times New Roman', serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -28,34 +36,101 @@
   @media (max-width: 1024px) {
     font-size: 16px;
   }
+
+  /* Bootstrap theme variables — re-pointed at the palette above so every
+     Bootstrap component (cards, tables, forms, alerts, navbar, etc.) picks
+     up the vinyl-store look without needing per-component overrides. */
+  --bs-body-bg: var(--bg);
+  --bs-body-bg-rgb: 28, 25, 23;
+  --bs-body-color: var(--text);
+  --bs-body-color-rgb: 184, 173, 161;
+  --bs-emphasis-color: var(--text-h);
+  --bs-emphasis-color-rgb: 250, 243, 224;
+  --bs-secondary-color: var(--text);
+  --bs-secondary-color-rgb: 184, 173, 161;
+  --bs-tertiary-bg: var(--surface);
+  --bs-tertiary-color: var(--text);
+  --bs-border-color: var(--border);
+  --bs-border-color-translucent: rgba(74, 64, 58, 0.6);
+
+  --bs-link-color: var(--accent);
+  --bs-link-color-rgb: 234, 106, 42;
+  --bs-link-hover-color: var(--accent-hover);
+  --bs-link-hover-color-rgb: 245, 158, 66;
+
+  --bs-primary: var(--accent);
+  --bs-primary-rgb: 234, 106, 42;
+  --bs-primary-text-emphasis: var(--accent-hover);
+  --bs-primary-bg-subtle: #3a2314;
+  --bs-primary-border-subtle: #5c3a1e;
+
+  --bs-secondary: var(--accent-2);
+  --bs-secondary-rgb: 212, 167, 44;
+  --bs-secondary-text-emphasis: #e8c766;
+  --bs-secondary-bg-subtle: #3a2f10;
+  --bs-secondary-border-subtle: #5c4a1a;
+
+  --bs-dark: var(--surface-elevated);
+  --bs-dark-rgb: 58, 51, 48;
+
+  --bs-card-bg: var(--surface);
+  --bs-card-cap-bg: var(--surface-elevated);
+
+  --bs-body-font-family: var(--sans);
+  --bs-headings-font-family: var(--heading);
+  --bs-headings-font-weight: 400;
+  --bs-navbar-brand-font-size: 1.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* Bootstrap precompiles hover/active button shades from its own default
+   palette rather than deriving them live from --bs-primary/--bs-secondary,
+   so the accent + secondary buttons/badges are retuned directly here. */
+.btn-primary {
+  --bs-btn-color: var(--accent-on);
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: var(--accent-on);
+  --bs-btn-hover-bg: var(--accent-hover);
+  --bs-btn-hover-border-color: var(--accent-hover);
+  --bs-btn-active-color: var(--accent-on);
+  --bs-btn-active-bg: var(--accent-hover);
+  --bs-btn-active-border-color: var(--accent-hover);
+  --bs-btn-disabled-bg: var(--accent);
+  --bs-btn-disabled-border-color: var(--accent);
+  --bs-btn-focus-shadow-rgb: 234, 106, 42;
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+.btn-secondary {
+  --bs-btn-color: var(--accent-on);
+  --bs-btn-bg: var(--accent-2);
+  --bs-btn-border-color: var(--accent-2);
+  --bs-btn-hover-color: var(--accent-on);
+  --bs-btn-hover-bg: #e8c766;
+  --bs-btn-hover-border-color: #e8c766;
+  --bs-btn-active-color: var(--accent-on);
+  --bs-btn-active-bg: #e8c766;
+  --bs-btn-active-border-color: #e8c766;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--accent-2);
+  --bs-btn-border-color: var(--accent-2);
+  --bs-btn-hover-color: var(--accent-on);
+  --bs-btn-hover-bg: var(--accent-2);
+  --bs-btn-hover-border-color: var(--accent-2);
+  --bs-btn-active-color: var(--accent-on);
+  --bs-btn-active-bg: var(--accent-2);
+  --bs-btn-active-border-color: var(--accent-2);
+}
+
+.badge.bg-secondary {
+  color: var(--accent-on) !important;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -67,15 +142,20 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 400;
   color: var(--text-h);
 }
 
 h1 {
   font-size: 56px;
-  letter-spacing: -1.68px;
+  letter-spacing: 0;
   margin: 32px 0;
   @media (max-width: 1024px) {
     font-size: 36px;
@@ -85,11 +165,15 @@ h1 {
 h2 {
   font-size: 24px;
   line-height: 118%;
-  letter-spacing: -0.24px;
+  letter-spacing: 0;
   margin: 0 0 8px;
   @media (max-width: 1024px) {
     font-size: 20px;
   }
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
 }
 p {
   margin: 0;
@@ -108,4 +192,29 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Soft, layered elevation for cards and tables — the subtle "shadow-sm"
+   look common in modern (Next.js-style) dashboards, rather than a single
+   hard drop shadow. */
+:root {
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.25);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card,
+.table-responsive {
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease;
+}
+
+.table-responsive {
+  /* Bootstrap already sets overflow-x: auto on this class for small-screen
+     scrolling — that alone is enough (non-"visible") for the radius below
+     to clip the table's square corners without disabling the scroll. */
+  border-radius: var(--bs-border-radius, 0.375rem);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
