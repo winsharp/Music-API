@@ -28,6 +28,7 @@ export interface CollectionRelease {
         title: string;
         thumb?: string;
         year?: number;
+        artists?: { name: string }[];
     };
 }
 
@@ -85,6 +86,7 @@ export interface WantlistItem {
         title: string;
         thumb?: string;
         year?: number;
+        artists?: { name: string }[];
     };
 }
 

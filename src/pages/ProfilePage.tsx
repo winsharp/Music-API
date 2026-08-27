@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { Alert, Card, Col, Container, Image, Row } from "react-bootstrap";
+import { Alert, Button, Card, Col, Container, Image, Row } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
@@ -19,6 +19,14 @@ export default function ProfilePage() {
     // profile is their linked Discogs account if connected, otherwise
     // their app username as a best-effort guess/lookup.
     const isOwnProfile = username === (connection?.discogsUsername ?? user?.username);
+    const navigate = useNavigate();
+
+    const handleArtistClick = (e: React.MouseEvent, artistName: string) => {
+        // Stop the click from bubbling up to the surrounding card, which
+        // navigates to the release instead.
+        e.stopPropagation();
+        navigate(`/artist?name=${encodeURIComponent(artistName)}`);
+    };
 
     const [profile, setProfile] = useState<DiscogsUserProfile | null>(null);
     const [collection, setCollection] = useState<CollectionRelease[]>([]);
@@ -186,7 +194,11 @@ export default function ProfilePage() {
                     <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                         {visibleRecentlyRated.map((item) => (
                             <Col key={item.instance_id}>
-                                <Card className="h-100">
+                                <Card
+                                    className="h-100 clickable-card"
+                                    role="button"
+                                    onClick={() => navigate(`/release/${item.basic_information.id}`)}
+                                >
                                     {item.basic_information.thumb ? (
                                         <Card.Img
                                             variant="top"
@@ -199,6 +211,15 @@ export default function ProfilePage() {
                                     )}
                                     <Card.Body className="p-2">
                                         <p className="mb-1 small">{item.basic_information.title}</p>
+                                        {item.basic_information.artists?.[0] && (
+                                            <Button
+                                                variant="link"
+                                                className="p-0 text-start small d-block mb-1"
+                                                onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
+                                            >
+                                                {item.basic_information.artists[0].name}
+                                            </Button>
+                                        )}
                                         <div>
                                             {[1, 2, 3, 4, 5].map((n) => (
                                                 <span key={n} aria-hidden="true">
@@ -232,7 +253,11 @@ export default function ProfilePage() {
                         <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                             {visibleCollection.map((item) => (
                                 <Col key={item.instance_id}>
-                                    <Card className="h-100">
+                                    <Card
+                                        className="h-100 clickable-card"
+                                        role="button"
+                                        onClick={() => navigate(`/release/${item.basic_information.id}`)}
+                                    >
                                         {item.basic_information.thumb ? (
                                             <Card.Img
                                                 variant="top"
@@ -245,6 +270,15 @@ export default function ProfilePage() {
                                         )}
                                         <Card.Body className="p-2">
                                             <p className="mb-1 small">{item.basic_information.title}</p>
+                                            {item.basic_information.artists?.[0] && (
+                                                <Button
+                                                    variant="link"
+                                                    className="p-0 text-start small d-block mb-1"
+                                                    onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
+                                                >
+                                                    {item.basic_information.artists[0].name}
+                                                </Button>
+                                            )}
                                             <div>
                                                 {[1, 2, 3, 4, 5].map((n) => (
                                                     <span key={n} aria-hidden="true">
@@ -314,7 +348,11 @@ export default function ProfilePage() {
                         <Row xs={2} sm={3} md={4} lg={5} className="g-3">
                             {visibleWantlist.map((item) => (
                                 <Col key={item.id}>
-                                    <Card className="h-100">
+                                    <Card
+                                        className="h-100 clickable-card"
+                                        role="button"
+                                        onClick={() => navigate(`/release/${item.basic_information.id}`)}
+                                    >
                                         {item.basic_information.thumb ? (
                                             <Card.Img
                                                 variant="top"
@@ -326,7 +364,16 @@ export default function ProfilePage() {
                                             <div className="media-thumb media-thumb-placeholder" />
                                         )}
                                         <Card.Body className="p-2">
-                                            <p className="mb-0 small">{item.basic_information.title}</p>
+                                            <p className="mb-1 small">{item.basic_information.title}</p>
+                                            {item.basic_information.artists?.[0] && (
+                                                <Button
+                                                    variant="link"
+                                                    className="p-0 text-start small d-block"
+                                                    onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
+                                                >
+                                                    {item.basic_information.artists[0].name}
+                                                </Button>
+                                            )}
                                         </Card.Body>
                                     </Card>
                                 </Col>
