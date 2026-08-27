@@ -11,13 +11,12 @@ describe("discogsOAuthService", () => {
         // CORS preflight for this endpoint doesn't allow GET with custom
         // headers, so a header-based request would be blocked by the browser.
         it("signs the request via query params (no custom headers) and parses the form-encoded response", async () => {
-            let receivedUrl: URL | null = null;
-            let receivedAuthHeader: string | null = null;
+            const captured: { url: URL | null; authHeader: string | null } = { url: null, authHeader: null };
 
             server.use(
                 http.get(`${BASE_URL}/oauth/request_token`, ({ request }) => {
-                    receivedUrl = new URL(request.url);
-                    receivedAuthHeader = request.headers.get("Authorization");
+                    captured.url = new URL(request.url);
+                    captured.authHeader = request.headers.get("Authorization");
                     return HttpResponse.text("oauth_token=req-token&oauth_token_secret=req-secret&oauth_callback_confirmed=true");
                 })
             );
@@ -25,9 +24,9 @@ describe("discogsOAuthService", () => {
             const token = await discogsOAuthService.getRequestToken("https://app.example.com/discogs/callback");
 
             expect(token).toEqual({ oauthToken: "req-token", oauthTokenSecret: "req-secret" });
-            expect(receivedAuthHeader).toBeNull();
-            expect(receivedUrl?.searchParams.get("oauth_signature_method")).toBe("PLAINTEXT");
-            expect(receivedUrl?.searchParams.get("oauth_callback")).toBe("https://app.example.com/discogs/callback");
+            expect(captured.authHeader).toBeNull();
+            expect(captured.url?.searchParams.get("oauth_signature_method")).toBe("PLAINTEXT");
+            expect(captured.url?.searchParams.get("oauth_callback")).toBe("https://app.example.com/discogs/callback");
         });
     });
 
