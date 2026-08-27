@@ -188,6 +188,48 @@ describe("ProfilePage", () => {
         await waitFor(() => expect(screen.getByText('No Discogs user found for "nobody".')).toBeInTheDocument());
     });
 
+    it("offers to connect Discogs when the logged-in user's own username doesn't match a Discogs account", async () => {
+        vi.mocked(discogsUserService.getProfile).mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 404 },
+        });
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        const axiosModule = await import("axios");
+        vi.spyOn(axiosModule.default, "isAxiosError").mockReturnValue(true);
+
+        // mockAppUser.username is "jdoe" — viewing that same username with no
+        // linked Discogs connection should offer to connect instead of a
+        // dead-end error.
+        renderWithRoute("jdoe");
+
+        await waitFor(() =>
+            expect(screen.getByText(/We couldn't find a Discogs account matching your username/)).toBeInTheDocument()
+        );
+        expect(screen.getByRole("button", { name: "Connect Discogs Account" })).toBeInTheDocument();
+    });
+
+    it("shows the app's localStorage username alongside a connected Discogs profile", async () => {
+        discogsAuthStorage.saveConnection(mockAppUser.id, {
+            discogsUsername: "memory",
+            oauthToken: "token",
+            oauthTokenSecret: "secret",
+        });
+        vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
+        vi.mocked(discogsUserService.getCollection).mockResolvedValue({
+            pagination: { page: 1, pages: 1, per_page: 50, items: 0 },
+            releases: [],
+        });
+
+        renderWithRoute("memory");
+
+        await waitFor(() => expect(screen.getByText("memory")).toBeInTheDocument());
+        expect(screen.getByText(`Logged in as ${mockAppUser.username}`)).toBeInTheDocument();
+    });
+
     it("still shows profile info and a private-collection message when the collection can't be read", async () => {
         vi.mocked(discogsUserService.getProfile).mockResolvedValue(mockProfile);
         vi.mocked(discogsUserService.getCollection).mockRejectedValue({
