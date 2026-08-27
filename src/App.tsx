@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import MyProfileRedirect from './pages/MyProfileRedirect'
+import SettingsPage from './pages/SettingsPage'
 import DiscogsCallbackPage from './pages/DiscogsCallbackPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NavBar from './components/NavBar'
@@ -40,6 +41,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              }
+          />
+          <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
                 </ProtectedRoute>
               }
           />

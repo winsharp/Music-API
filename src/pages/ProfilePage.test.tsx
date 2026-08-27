@@ -84,6 +84,7 @@ describe("ProfilePage", () => {
             login: vi.fn(),
             logout: vi.fn(),
             register: vi.fn(),
+            updateUser: vi.fn(),
         });
         vi.mocked(discogsUserService.getLists).mockResolvedValue({
             pagination: { page: 1, pages: 1, per_page: 50, items: 0 },

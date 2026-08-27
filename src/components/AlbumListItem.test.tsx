@@ -25,7 +25,7 @@ vi.mock("react-router-dom", () => ({
 // Default: logged out, no Discogs connection — matches most existing
 // AlbumListItem tests, which don't care about the rating feature.
 beforeEach(() => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+    vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
     vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(null);
     mockNavigate.mockClear();
 });

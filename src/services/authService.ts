@@ -67,4 +67,39 @@ export const authService = {
         const match = readUsers().find((u) => u.id === sessionId);
         return match ? toPublicUser(match) : null;
     },
+
+    async updateUser(
+        userId: string,
+        updates: { username: string; email: string },
+        currentPassword: string,
+        newPassword?: string
+    ): Promise<User> {
+        const users = readUsers();
+        const index = users.findIndex((u) => u.id === userId);
+        if (index === -1) throw new Error("User not found.");
+
+        const isMatch = await bcrypt.compare(currentPassword, users[index].passwordHash);
+        if (!isMatch) throw new Error("Current password is incorrect.");
+
+        if (
+            users.some(
+                (u) => u.id !== userId && u.username.toLowerCase() === updates.username.toLowerCase()
+            )
+        ) {
+            throw new Error("Username is already taken.");
+        }
+        if (
+            users.some((u) => u.id !== userId && u.email.toLowerCase() === updates.email.toLowerCase())
+        ) {
+            throw new Error("An account with this email already exists.");
+        }
+
+        const passwordHash = newPassword
+            ? await bcrypt.hash(newPassword, SALT_ROUNDS)
+            : users[index].passwordHash;
+        const updatedUser: StoredUser = { ...users[index], ...updates, passwordHash };
+
+        writeUsers(users.map((u) => (u.id === userId ? updatedUser : u)));
+        return toPublicUser(updatedUser);
+    },
 };

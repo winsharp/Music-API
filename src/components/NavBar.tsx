@@ -43,6 +43,9 @@ const NavBar = () => {
                                 <Nav.Link as={Link} to="/profile">
                                     Profile
                                 </Nav.Link>
+                                <Nav.Link as={Link} to="/settings">
+                                    Settings
+                                </Nav.Link>
                                 <Nav.Link as="button" type="button" onClick={handleLogout}>
                                     Log Out
                                 </Nav.Link>

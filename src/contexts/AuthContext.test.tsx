@@ -10,8 +10,11 @@ vi.mock("../services/authService", () => ({
         login: vi.fn(),
         register: vi.fn(),
         logout: vi.fn(),
+        updateUser: vi.fn(),
     },
 }));
+
+const updatedMockUser = { id: "1", username: "newname", email: "new@example.com" };
 
 const mockUser = { id: "1", username: "jdoe", email: "jdoe@example.com" };
 const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>;
@@ -92,5 +95,40 @@ describe("AuthContext", () => {
 
         expect(authService.logout).toHaveBeenCalled();
         await waitFor(() => expect(result.current.user).toBeNull());
+    });
+
+    it("updates and updates the user state", async () => {
+        vi.mocked(authService.getSessionUser).mockReturnValue(mockUser);
+        vi.mocked(authService.updateUser).mockResolvedValue(updatedMockUser);
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await act(async () => {
+            await result.current.updateUser(
+                { username: "newname", email: "new@example.com" },
+                "hunter2",
+                "newpassword"
+            );
+        });
+
+        expect(authService.updateUser).toHaveBeenCalledWith(
+            mockUser.id,
+            { username: "newname", email: "new@example.com" },
+            "hunter2",
+            "newpassword"
+        );
+        expect(result.current.user).toEqual(updatedMockUser);
+    });
+
+    it("throws when updateUser is called while logged out", async () => {
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await expect(
+            act(async () => {
+                await result.current.updateUser({ username: "newname", email: "new@example.com" }, "hunter2");
+            })
+        ).rejects.toThrow("Not logged in.");
+
+        expect(authService.updateUser).not.toHaveBeenCalled();
     });
 });

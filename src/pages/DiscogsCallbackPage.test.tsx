@@ -40,7 +40,7 @@ describe("DiscogsCallbackPage", () => {
         vi.clearAllMocks();
         localStorage.clear();
         sessionStorage.clear();
-        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn() });
+        vi.mocked(useAuth).mockReturnValue({ user: mockUser, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
     });
 
     it("completes the handshake and redirects to the connected profile", async () => {

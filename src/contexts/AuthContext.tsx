@@ -32,8 +32,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
     }, []);
 
+    const updateUser = useCallback(
+        async (updates: { username: string; email: string }, currentPassword: string, newPassword?: string) => {
+            if (!user) throw new Error("Not logged in.");
+            const updatedUser = await authService.updateUser(user.id, updates, currentPassword, newPassword);
+            setUser(updatedUser);
+        },
+        [user]
+    );
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, register }}>
+        <AuthContext.Provider value={{ user, login, logout, register, updateUser }}>
             {children}
         </AuthContext.Provider>
     );
