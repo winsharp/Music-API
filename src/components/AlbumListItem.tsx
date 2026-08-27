@@ -2,14 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
-import RateAndCollect from "./RateAndCollect";
 
 interface AlbumListItemProps {
     album: SearchResult;
-    existingEntry?: { instance_id: number; rating: number };
 }
 
-const AlbumListItem = ({ album, existingEntry }: AlbumListItemProps) => {
+const AlbumListItem = ({ album }: AlbumListItemProps) => {
     const { artist, title } = parseAlbumTitle(album.title);
     const navigate = useNavigate();
     // parseAlbumTitle falls back to this literal string when a search
@@ -46,9 +44,6 @@ const AlbumListItem = ({ album, existingEntry }: AlbumListItemProps) => {
             </td>
             <td>{album.year}</td>
             <td>{album.genre && album.genre.length > 0 ? album.genre.join(", ") : ""}</td>
-            <td>
-                <RateAndCollect releaseId={album.id} existingEntry={existingEntry} />
-            </td>
         </tr>
     );
 };

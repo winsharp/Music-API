@@ -4,31 +4,16 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import AlbumListItem from "./AlbumListItem";
 import { mockBrowseResults } from "../tests/browse.mock";
 import type { SearchResult } from "../types/search";
-import { useAuth } from "../contexts/AuthContext";
-import { discogsAuthStorage } from "../services/discogsAuthStorage";
-
-vi.mock("../contexts/AuthContext", () => ({
-    useAuth: vi.fn(),
-}));
-
-vi.mock("../services/discogsAuthStorage", () => ({
-    discogsAuthStorage: {
-        getConnection: vi.fn(),
-    },
-}));
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
     useNavigate: () => mockNavigate,
 }));
 
-// Default: logged out, no Discogs connection — matches most existing
-// AlbumListItem tests, which don't care about the rating feature.
 beforeEach(() => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, login: vi.fn(), logout: vi.fn(), register: vi.fn(), updateUser: vi.fn() });
-    vi.mocked(discogsAuthStorage.getConnection).mockReturnValue(null);
     mockNavigate.mockClear();
 });
+
 const renderRow = (album: SearchResult) =>
     render(
         <table>
