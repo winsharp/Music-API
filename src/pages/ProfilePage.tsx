@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Alert, Card, Col, Container, Image, Row } from "react-bootstrap";
+import { Alert, Container, Image } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
@@ -9,7 +9,7 @@ import { useAuth } from "../hooks/useAuth";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
 import ReleaseGrid from "../components/ReleaseGrid";
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
-import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
+import type { DiscogsUserProfile, CollectionRelease, WantlistItem } from "../types/discogsUser";
 import { mockProfiles } from "../tests/mockProfiles";
 
 export default function ProfilePage() {
@@ -37,10 +37,6 @@ export default function ProfilePage() {
     // only read another user's "All" folder if that user's collection is
     // public. Most users' collections are private, so this is expected.
     const [collectionError, setCollectionError] = useState<string | null>(null);
-    // User-created lists (separate from Collection/Wantlist). Private lists
-    // only come back when authenticated as the owner.
-    const [lists, setLists] = useState<DiscogsListDetail[]>([]);
-    const [listsError, setListsError] = useState<string | null>(null);
     // Releases wanted but not owned. Private wantlists only come back when
     // authenticated as the owner.
     const [wantlist, setWantlist] = useState<WantlistItem[]>([]);
@@ -58,7 +54,6 @@ export default function ProfilePage() {
         const connKey = connection?.discogsUsername ?? "anon";
         const profileKey = `profile:${username}`;
         const collectionKey = `collection:${username}:${connKey}`;
-        const listsKey = `lists:${username}:${connKey}`;
         const wantlistKey = `wantlist:${username}:${connKey}`;
 
         const fetchProfile = async () => {
@@ -67,18 +62,15 @@ export default function ProfilePage() {
             // loading state and re-hitting Discogs for data we already have.
             const cachedProfile = getCached<DiscogsUserProfile>(profileKey);
             const cachedCollection = getCached<CollectionRelease[]>(collectionKey);
-            const cachedLists = getCached<DiscogsListDetail[]>(listsKey);
             const cachedWantlist = getCached<WantlistItem[]>(wantlistKey);
 
             if (cachedProfile) setProfile(cachedProfile);
             if (cachedCollection) setCollection(cachedCollection);
-            if (cachedLists) setLists(cachedLists);
             if (cachedWantlist) setWantlist(cachedWantlist);
 
             setLoading(!cachedProfile);
             setError(null);
             setCollectionError(null);
-            setListsError(null);
             setWantlistError(null);
             try {
                 const profileData = cachedProfile ?? (await discogsUserService.getProfile(username));
@@ -96,7 +88,6 @@ export default function ProfilePage() {
                         avatar_url: mockProfile.avatarUrl,
                         num_collection: mockProfile.ratedReleases.length,
                         num_wantlist: 0,
-                        num_lists: 1,
                         releases_rated: mockProfile.ratedReleases.length,
                         rating_avg: mockProfile.ratedReleases.length ? ratingSum / mockProfile.ratedReleases.length : 0,
                     };
@@ -127,25 +118,6 @@ export default function ProfilePage() {
                     setCollectionError("Couldn't load this user's collection right now.");
                 }
                 setCollection([]);
-            }
-
-            try {
-                let details = cachedLists;
-                if (!details) {
-                    const listsData = await discogsUserService.getLists(username, connection);
-                    details = await Promise.all(
-                        listsData.lists.map((list) => discogsUserService.getListDetail(list.id, connection))
-                    );
-                    setCached(listsKey, details);
-                }
-                setLists(details);
-            } catch (err) {
-                if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
-                    setListsError(`${username}'s lists are private.`);
-                } else {
-                    setListsError("Couldn't load this user's lists right now.");
-                }
-                setLists([]);
             }
 
             try {
@@ -267,37 +239,6 @@ export default function ProfilePage() {
                         pageSize={SECTION_PAGE_SIZE}
                         viewAllHref={`/profile/${username}/collection`}
                     />
-                )}
-            </section>
-
-            <section className="mb-4">
-                <h2>Lists</h2>
-                {listsError ? (
-                    <Alert variant="warning" role="alert">{listsError}</Alert>
-                ) : lists.length === 0 ? (
-                    <p>This user hasn't created any lists yet.</p>
-                ) : (
-                    <Row xs={1} md={2} className="g-3">
-                        {lists.map((list) => (
-                            <Col key={list.id}>
-                                <Card className="h-100">
-                                    <Card.Body>
-                                        <Card.Title as="h3" className="h5">{list.name}</Card.Title>
-                                        {list.description && <Card.Text>{list.description}</Card.Text>}
-                                        {list.items.length === 0 ? (
-                                            <p className="mb-0">This list is empty.</p>
-                                        ) : (
-                                            <ul className="mb-0">
-                                                {list.items.map((item) => (
-                                                    <li key={item.id}>{item.display_title}</li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
-                    </Row>
                 )}
             </section>
 
