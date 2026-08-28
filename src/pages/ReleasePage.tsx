@@ -15,7 +15,6 @@ import "../styles/mediaThumb.css";
 const ReleasePage = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
-    const connection = user ? discogsAuthStorage.getConnection(user.id) : null;
 
     const [release, setRelease] = useState<ReleaseDetail | null>(null);
     const [loading, setLoading] = useState(false);
@@ -46,27 +45,36 @@ const ReleasePage = () => {
     // Pre-fill collection/wantlist status for this release so the buttons
     // reflect reality instead of always starting from scratch. Fails quietly
     // — the user can still use the buttons even if this lookup fails.
+    //
+    // NOTE: depends on user?.id rather than `connection` — discogsAuthStorage
+    // .getConnection() parses JSON and returns a new object on every render,
+    // so depending on `connection` directly would re-run this effect (and
+    // its setState calls) every render, causing an infinite fetch loop.
     useEffect(() => {
-        if (!id || !connection) return;
+        if (!id || !user) return;
+        const connection = discogsAuthStorage.getConnection(user.id);
+        if (!connection) return;
         const releaseId = Number(id);
 
         const fetchStatus = async () => {
             try {
                 const entry = await releaseCollectionService.findExistingEntry(connection, releaseId);
                 setExistingEntry(entry ?? undefined);
-            } catch {
-                // fail quietly
+            } catch (err) {
+                // fail quietly in the UI, but still log so lookup issues are visible
+                console.error(err);
             }
             try {
                 const wantlist = await discogsUserService.getWantlist(connection.discogsUsername, connection);
                 setInWantlist(wantlist.wants.some((want) => want.basic_information.id === releaseId));
-            } catch {
-                // fail quietly
+            } catch (err) {
+                // fail quietly in the UI, but still log so lookup issues are visible
+                console.error(err);
             }
         };
 
         void fetchStatus();
-    }, [id, connection]);
+    }, [id, user]);
 
     if (loading) return (
         <Container fluid="lg" className="py-4">
