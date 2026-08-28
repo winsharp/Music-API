@@ -5,9 +5,11 @@ import { Alert, Container } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
+import { useAuth } from "../hooks/useAuth";
 import ReleaseGrid from "../components/ReleaseGrid";
 import CardGridSkeleton from "../components/skeletons/CardGridSkeleton";
 import type { CollectionRelease, WantlistItem } from "../types/discogsUser";
+import { mockProfiles } from "../tests/mockProfiles";
 
 type Section = "rated" | "collection" | "wantlist";
 
@@ -21,7 +23,13 @@ type SectionItem = (CollectionRelease | WantlistItem) & { key: number };
 
 export default function ProfileSectionPage() {
     const { username, section } = useParams<{ username: string; section: Section }>();
+    const { user } = useAuth();
     const { connection } = useDiscogsConnection();
+
+    // Same rule as ProfilePage: mock profiles can stand in for a real user's
+    // profile, but never for the logged-in user's own profile.
+    const isOwnProfile = !!user && (username === user.username || username === connection?.discogsUsername);
+    const mockProfile = !isOwnProfile ? mockProfiles.find((p) => p.username === username) : undefined;
 
     const [items, setItems] = useState<SectionItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -37,20 +45,44 @@ export default function ProfileSectionPage() {
         const cacheKey =
             section === "wantlist" ? `wantlist:${username}:${connKey}` : `collection:${username}:${connKey}`;
 
+        // Mock profiles don't correspond to real Discogs accounts, so their
+        // collection/wantlist requests 404 — fall back to the mock's rated
+        // releases instead of dead-ending with an error, mirroring ProfilePage.
+        const mockCollection: CollectionRelease[] | undefined = mockProfile
+            ? mockProfile.ratedReleases.map((release) => ({
+                  id: release.id,
+                  instance_id: release.id,
+                  rating: release.rating,
+                  date_added: new Date().toISOString(),
+                  basic_information: {
+                      id: release.id,
+                      title: release.title,
+                      thumb: release.thumb,
+                      artists: [{ name: release.artist }],
+                  },
+              }))
+            : undefined;
+
         const fetchItems = async () => {
             const cached = getCached<CollectionRelease[] | WantlistItem[]>(cacheKey);
             setLoading(!cached);
             setError(null);
             try {
                 if (section === "wantlist") {
+                    if (mockCollection) {
+                        // Mock profiles don't have wantlist data.
+                        setItems([]);
+                        return;
+                    }
                     const wants = (cached as WantlistItem[] | undefined) ?? (await discogsUserService.getWantlist(username, connection)).wants;
                     if (!cached) setCached(cacheKey, wants);
                     setItems(wants.map((item) => ({ ...item, key: item.id })));
                 } else {
                     const releases =
                         (cached as CollectionRelease[] | undefined) ??
+                        mockCollection ??
                         (await discogsUserService.getCollection(username, connection)).releases;
-                    if (!cached) setCached(cacheKey, releases);
+                    if (!cached && !mockCollection) setCached(cacheKey, releases);
                     const filtered =
                         section === "rated"
                             ? releases
@@ -60,19 +92,23 @@ export default function ProfileSectionPage() {
                     setItems(filtered.map((item) => ({ ...item, key: item.instance_id })));
                 }
             } catch (err) {
-                if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+                if (mockCollection) {
+                    // Already handled via mockCollection above; getCollection
+                    // shouldn't be reached for mock profiles, but guard anyway.
+                    setItems([]);
+                } else if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
                     setError(`${username}'s ${SECTION_TITLES[section].toLowerCase()} is private.`);
                 } else {
                     setError(`Couldn't load this user's ${SECTION_TITLES[section].toLowerCase()} right now.`);
                 }
-                setItems([]);
+                if (!mockCollection) setItems([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchItems();
-    }, [username, section, connection]);
+    }, [username, section, connection, mockProfile]);
 
     const title = section ? SECTION_TITLES[section] : "";
     const showRating = section === "rated" || section === "collection";
