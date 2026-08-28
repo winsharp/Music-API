@@ -6,6 +6,7 @@ import type { ArtistProfile, ArtistRelease } from "../types/artist";
 import Pagination from "../components/Pagination";
 import ArtistReleasesTableSkeleton from "../components/skeletons/ArtistReleasesTableSkeleton";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { usePageParam } from "../hooks/usePageParam";
 import "../styles/catalogTable.css";
 
 const ArtistPage = () => {
@@ -17,7 +18,7 @@ const ArtistPage = () => {
     const idParam = searchParams.get("id");
     const nameParam = searchParams.get("name");
     const hasArtistParam = Boolean(idParam || nameParam);
-    const page = Number(searchParams.get("page")) || 1;
+    const page = usePageParam();
 
     const [artist, setArtist] = useState<ArtistProfile | null>(null);
     const [releases, setReleases] = useState<ArtistRelease[]>([]);

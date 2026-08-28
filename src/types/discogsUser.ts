@@ -1,5 +1,6 @@
 // Shapes for the Discogs User Identity / Collection endpoints.
 // See: https://www.discogs.com/developers (User Identity, User Collection)
+import type { DiscogsPagination } from "./pagination";
 
 export interface DiscogsUserProfile {
     username: string;
@@ -13,6 +14,18 @@ export interface DiscogsUserProfile {
     rating_avg: number;
 }
 
+// The release summary shared by every Discogs endpoint that embeds a
+// release inside something else (a collection item, a wantlist item, ...)
+// — as opposed to ReleaseDetail (types/release.ts), the full standalone
+// GET /releases/{id} shape.
+export interface DiscogsBasicInformation {
+    id: number;
+    title: string;
+    thumb?: string;
+    year?: number;
+    artists?: { name: string }[];
+}
+
 // A single release inside a user's "All" collection folder.
 // `rating` is that user's own 0-5 rating for the release, straight from Discogs.
 // Discogs doesn't track *when* a release was rated, only `date_added` (when
@@ -23,22 +36,11 @@ export interface CollectionRelease {
     instance_id: number;
     rating: number;
     date_added: string;
-    basic_information: {
-        id: number;
-        title: string;
-        thumb?: string;
-        year?: number;
-        artists?: { name: string }[];
-    };
+    basic_information: DiscogsBasicInformation;
 }
 
 export interface CollectionReleasesResponse {
-    pagination: {
-        page: number;
-        pages: number;
-        per_page: number;
-        items: number;
-    };
+    pagination: DiscogsPagination;
     releases: CollectionRelease[];
 }
 
@@ -53,12 +55,7 @@ export interface DiscogsListSummary {
 }
 
 export interface DiscogsListsResponse {
-    pagination: {
-        page: number;
-        pages: number;
-        per_page: number;
-        items: number;
-    };
+    pagination: DiscogsPagination;
     lists: DiscogsListSummary[];
 }
 
@@ -81,21 +78,10 @@ export interface WantlistItem {
     rating: number;
     date_added: string;
     notes?: string;
-    basic_information: {
-        id: number;
-        title: string;
-        thumb?: string;
-        year?: number;
-        artists?: { name: string }[];
-    };
+    basic_information: DiscogsBasicInformation;
 }
 
 export interface WantlistResponse {
-    pagination: {
-        page: number;
-        pages: number;
-        per_page: number;
-        items: number;
-    };
+    pagination: DiscogsPagination;
     wants: WantlistItem[];
 }

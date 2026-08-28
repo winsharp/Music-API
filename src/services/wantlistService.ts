@@ -4,8 +4,7 @@
 import axios from "axios";
 import type { DiscogsConnection } from "../types/discogsOAuth";
 import { authHeaderFor } from "./discogsOAuthService";
-
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
+import { DISCOGS_BASE_URL as BASE_URL } from "./discogsConfig";
 
 export const wantlistService = {
     // Adds a release to the user's wantlist. Idempotent on Discogs' side —

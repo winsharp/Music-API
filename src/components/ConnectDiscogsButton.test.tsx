@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ConnectDiscogsButton from "./ConnectDiscogsButton";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import { discogsOAuthService } from "../services/discogsOAuthService";
 
-vi.mock("../contexts/AuthContext", () => ({
+vi.mock("../hooks/useAuth", () => ({
     useAuth: vi.fn(),
 }));
 

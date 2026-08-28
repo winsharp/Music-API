@@ -3,9 +3,7 @@
 
 import axios from "axios";
 import type { ReleaseDetail } from "../types/release";
-
-const BASE_URL = import.meta.env.VITE_DISCOGS_BASE_URL;
-const TOKEN = import.meta.env.VITE_DISCOGS_TOKEN;
+import { DISCOGS_BASE_URL as BASE_URL, DISCOGS_TOKEN as TOKEN } from "./discogsConfig";
 
 export const getRelease = async (id: string | number): Promise<ReleaseDetail> => {
     const response = await axios.get<ReleaseDetail>(`${BASE_URL}/releases/${id}`, {

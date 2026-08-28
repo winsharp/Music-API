@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Alert, Button, Card, Col, Container, Image, Row } from "react-bootstrap";
+import { Alert, Card, Col, Container, Image, Row } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import ConnectDiscogsButton from "../components/ConnectDiscogsButton";
-import MediaCard from "../components/MediaCard";
+import ReleaseGrid from "../components/ReleaseGrid";
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import type { DiscogsUserProfile, CollectionRelease, DiscogsListDetail, WantlistItem } from "../types/discogsUser";
 import { mockProfiles } from "../tests/mockProfiles";
@@ -16,14 +16,6 @@ export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
     const { user } = useAuth();
     const { connection } = useDiscogsConnection();
-    const navigate = useNavigate();
-
-    const handleArtistClick = (e: React.MouseEvent, artistName: string) => {
-        // Stop the click from bubbling up to the surrounding card, which
-        // navigates to the release instead.
-        e.stopPropagation();
-        navigate(`/artist?name=${encodeURIComponent(artistName)}`);
-    };
 
     // "/profile" guesses that the app username matches a real Discogs
     // username when no account is linked yet. If that guess is wrong, the
@@ -63,26 +55,26 @@ export default function ProfilePage() {
     useEffect(() => {
         if (!username) return;
 
-        // Reuse recently-fetched data (e.g. when navigating back from a
-        // "View All" section page) instead of showing a full-page loading
-        // state and re-hitting Discogs for data we already have.
         const connKey = connection?.discogsUsername ?? "anon";
         const profileKey = `profile:${username}`;
         const collectionKey = `collection:${username}:${connKey}`;
         const listsKey = `lists:${username}:${connKey}`;
         const wantlistKey = `wantlist:${username}:${connKey}`;
 
-        const cachedProfile = getCached<DiscogsUserProfile>(profileKey);
-        const cachedCollection = getCached<CollectionRelease[]>(collectionKey);
-        const cachedLists = getCached<DiscogsListDetail[]>(listsKey);
-        const cachedWantlist = getCached<WantlistItem[]>(wantlistKey);
-
-        if (cachedProfile) setProfile(cachedProfile);
-        if (cachedCollection) setCollection(cachedCollection);
-        if (cachedLists) setLists(cachedLists);
-        if (cachedWantlist) setWantlist(cachedWantlist);
-
         const fetchProfile = async () => {
+            // Reuse recently-fetched data (e.g. when navigating back from a
+            // "View All" section page) instead of showing a full-page
+            // loading state and re-hitting Discogs for data we already have.
+            const cachedProfile = getCached<DiscogsUserProfile>(profileKey);
+            const cachedCollection = getCached<CollectionRelease[]>(collectionKey);
+            const cachedLists = getCached<DiscogsListDetail[]>(listsKey);
+            const cachedWantlist = getCached<WantlistItem[]>(wantlistKey);
+
+            if (cachedProfile) setProfile(cachedProfile);
+            if (cachedCollection) setCollection(cachedCollection);
+            if (cachedLists) setLists(cachedLists);
+            if (cachedWantlist) setWantlist(cachedWantlist);
+
             setLoading(!cachedProfile);
             setError(null);
             setCollectionError(null);
@@ -203,10 +195,6 @@ export default function ProfilePage() {
                 .sort((a, b) => new Date(b.date_added).getTime() - new Date(a.date_added).getTime()),
         [displayCollection]
     );
-    const visibleRecentlyRated = recentlyRated.slice(0, SECTION_PAGE_SIZE);
-    const visibleCollection = displayCollection.slice(0, SECTION_PAGE_SIZE);
-    const visibleWantlist = wantlist.slice(0, SECTION_PAGE_SIZE);
-
     if (loading) return (
         <Container fluid="lg" className="py-4">
             <ProfilePageSkeleton />
@@ -255,42 +243,13 @@ export default function ProfilePage() {
             {!displayCollectionError && recentlyRated.length > 0 && (
                 <section className="mb-4">
                     <h2>Recently Rated</h2>
-                    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                        {visibleRecentlyRated.map((item) => (
-                            <Col key={item.instance_id}>
-                                <MediaCard
-                                    thumb={item.basic_information.thumb}
-                                    alt={item.basic_information.title}
-                                    title={item.basic_information.title}
-                                    onClick={() => navigate(`/release/${item.basic_information.id}`)}
-                                >
-                                    {item.basic_information.artists?.[0] && (
-                                        <Button
-                                            variant="link"
-                                            className="p-0 text-start d-block mb-1 media-card-subtitle"
-                                            onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                        >
-                                            {item.basic_information.artists[0].name}
-                                        </Button>
-                                    )}
-                                    <div>
-                                        {[1, 2, 3, 4, 5].map((n) => (
-                                            <span key={n} aria-hidden="true">
-                                                {item.rating >= n ? "★" : "☆"}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </MediaCard>
-                            </Col>
-                        ))}
-                    </Row>
-                    {recentlyRated.length > SECTION_PAGE_SIZE && (
-                        <div className="text-center mt-2">
-                            <Link to={`/profile/${username}/rated`} className="btn btn-link btn-sm p-0 text-decoration-none">
-                                View All
-                            </Link>
-                        </div>
-                    )}
+                    <ReleaseGrid
+                        items={recentlyRated}
+                        getKey={(item) => item.instance_id}
+                        showRating
+                        pageSize={SECTION_PAGE_SIZE}
+                        viewAllHref={`/profile/${username}/rated`}
+                    />
                 </section>
             )}
 
@@ -301,48 +260,13 @@ export default function ProfilePage() {
                 ) : displayCollection.length === 0 ? (
                     <p>This user hasn't added any releases to their collection yet.</p>
                 ) : (
-                    <>
-                        <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                            {visibleCollection.map((item) => (
-                                <Col key={item.instance_id}>
-                                    <MediaCard
-                                        thumb={item.basic_information.thumb}
-                                        alt={item.basic_information.title}
-                                        title={item.basic_information.title}
-                                        onClick={() => navigate(`/release/${item.basic_information.id}`)}
-                                    >
-                                        {item.basic_information.artists?.[0] && (
-                                            <Button
-                                                variant="link"
-                                                className="p-0 text-start d-block mb-1 media-card-subtitle"
-                                                onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                            >
-                                                {item.basic_information.artists[0].name}
-                                            </Button>
-                                        )}
-                                        <div>
-                                            {[1, 2, 3, 4, 5].map((n) => (
-                                                <span key={n} aria-hidden="true">
-                                                    {item.rating >= n ? "★" : "☆"}
-                                                </span>
-                                            ))}
-                                            {item.rating === 0 && <span> Not rated</span>}
-                                        </div>
-                                    </MediaCard>
-                                </Col>
-                            ))}
-                        </Row>
-                        {displayCollection.length > SECTION_PAGE_SIZE && (
-                            <div className="text-center mt-2">
-                                <Link
-                                    to={`/profile/${username}/collection`}
-                                    className="btn btn-link btn-sm p-0 text-decoration-none"
-                                >
-                                    View All
-                                </Link>
-                            </div>
-                        )}
-                    </>
+                    <ReleaseGrid
+                        items={displayCollection}
+                        getKey={(item) => item.instance_id}
+                        showRating
+                        pageSize={SECTION_PAGE_SIZE}
+                        viewAllHref={`/profile/${username}/collection`}
+                    />
                 )}
             </section>
 
@@ -384,40 +308,12 @@ export default function ProfilePage() {
                 ) : wantlist.length === 0 ? (
                     <p>This user hasn't added anything to their wantlist yet.</p>
                 ) : (
-                    <>
-                        <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                            {visibleWantlist.map((item) => (
-                                <Col key={item.id}>
-                                    <MediaCard
-                                        thumb={item.basic_information.thumb}
-                                        alt={item.basic_information.title}
-                                        title={item.basic_information.title}
-                                        onClick={() => navigate(`/release/${item.basic_information.id}`)}
-                                    >
-                                        {item.basic_information.artists?.[0] && (
-                                            <Button
-                                                variant="link"
-                                                className="p-0 text-start d-block mb-1 media-card-subtitle"
-                                                onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                            >
-                                                {item.basic_information.artists[0].name}
-                                            </Button>
-                                        )}
-                                    </MediaCard>
-                                </Col>
-                            ))}
-                        </Row>
-                        {wantlist.length > SECTION_PAGE_SIZE && (
-                            <div className="text-center mt-2">
-                                <Link
-                                    to={`/profile/${username}/wantlist`}
-                                    className="btn btn-link btn-sm p-0 text-decoration-none"
-                                >
-                                    View All
-                                </Link>
-                            </div>
-                        )}
-                    </>
+                    <ReleaseGrid
+                        items={wantlist}
+                        getKey={(item) => item.id}
+                        pageSize={SECTION_PAGE_SIZE}
+                        viewAllHref={`/profile/${username}/wantlist`}
+                    />
                 )}
             </section>
         </Container>

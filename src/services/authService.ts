@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { User } from "../interfaces/user";
+import type { User } from "../types/user";
 
 interface StoredUser extends User {
     passwordHash: string;

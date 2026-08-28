@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Badge, Button, Col } from "react-bootstrap";
+import { Badge, Col } from "react-bootstrap";
 import type { SearchResult } from "../types/search";
 import { parseAlbumTitle } from "../utils/parseAlbumTitle";
 import MediaCard from "./MediaCard";
+import ArtistLink from "./ArtistLink";
 
 interface SearchResultViewProps {
     result: SearchResult;
@@ -11,41 +12,21 @@ interface SearchResultViewProps {
 const SearchResultView = ({ result }: SearchResultViewProps) => {
     const navigate = useNavigate();
     const { artist, title } = parseAlbumTitle(result.title);
-    // parseAlbumTitle falls back to this literal string when a result's
-    // title has no "Artist - Title" separator to split on — not a real
-    // artist to look up on Discogs, so don't make it clickable.
-    const hasKnownArtist = artist !== "Unknown Artist";
 
     const handleTitleClick = () => {
         navigate(`/release/${result.id}`);
     };
 
-    const handleArtistClick = () => {
-        navigate(`/artist?name=${encodeURIComponent(artist)}`);
-    };
-
-    const handleGenreClick = (genre: string, e: React.MouseEvent) => {
+    const handleGenreClick = (e: React.MouseEvent) => {
         // Stop the click from bubbling up to the surrounding card, which
         // navigates to the release instead.
         e.stopPropagation();
-        // navigate to genre-filtered results once that route exists
-        console.log("Clicked genre:", genre);
     };
 
     return (
         <Col>
             <MediaCard thumb={result.thumb} alt={title} title={title} onClick={handleTitleClick}>
-                {hasKnownArtist ? (
-                    <Button
-                        variant="link"
-                        className="p-0 text-start d-block mb-1 media-card-subtitle"
-                        onClick={handleArtistClick}
-                    >
-                        {artist}
-                    </Button>
-                ) : (
-                    <p className="mb-1 media-card-subtitle">{artist}</p>
-                )}
+                <ArtistLink artist={artist} />
                 <p className="mb-1 small">{result.year}</p>
                 {result.genre && (
                     <div className="d-flex flex-wrap gap-1">
@@ -56,7 +37,7 @@ const SearchResultView = ({ result }: SearchResultViewProps) => {
                                 key={g}
                                 bg="secondary"
                                 className="border-0"
-                                onClick={(e) => handleGenreClick(g, e)}
+                                onClick={handleGenreClick}
                             >
                                 {g}
                             </Badge>

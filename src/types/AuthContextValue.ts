@@ -1,5 +1,5 @@
 
-import type { User } from "../interfaces/user";
+import type { User } from "./user";
 
 export interface AuthContextValue {
     user: User | null;

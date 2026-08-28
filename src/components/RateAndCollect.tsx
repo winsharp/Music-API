@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Button } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import { releaseCollectionService } from "../services/releaseCollectionService";
 import { wantlistService } from "../services/wantlistService";
+import { useAsyncStatus } from "../hooks/useAsyncStatus";
 
 interface RateAndCollectProps {
     releaseId: number;
@@ -17,40 +18,29 @@ const RateAndCollect = ({ releaseId, existingEntry, inWantlist }: RateAndCollect
     const location = useLocation();
     const [instanceId, setInstanceId] = useState<number | null>(existingEntry?.instance_id ?? null);
     const [rating, setRating] = useState(existingEntry?.rating ?? 0);
-    const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+    const [status, runCollectionAction] = useAsyncStatus();
     const [wanted, setWanted] = useState(inWantlist ?? false);
-    const [wantlistStatus, setWantlistStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+    const [wantlistStatus, runWantlistAction] = useAsyncStatus();
 
     const connection = user ? discogsAuthStorage.getConnection(user.id) : null;
 
-    const handleAddToCollection = async () => {
+    const handleAddToCollection = () => {
         if (!connection) return;
-        setStatus("saving");
-        try {
+        runCollectionAction(async () => {
             const result = await releaseCollectionService.addToCollection(connection, releaseId);
             setInstanceId(result.instance_id);
-            setStatus("saved");
-        } catch {
-            setStatus("error");
-        }
+        });
     };
 
-    const handleRate = async (newRating: number) => {
+    const handleRate = (newRating: number) => {
         if (!connection || !instanceId) return;
         setRating(newRating);
-        setStatus("saving");
-        try {
-            await releaseCollectionService.rateRelease(connection, releaseId, instanceId, newRating);
-            setStatus("saved");
-        } catch {
-            setStatus("error");
-        }
+        runCollectionAction(() => releaseCollectionService.rateRelease(connection, releaseId, instanceId, newRating));
     };
 
-    const handleToggleWantlist = async () => {
+    const handleToggleWantlist = () => {
         if (!connection) return;
-        setWantlistStatus("saving");
-        try {
+        runWantlistAction(async () => {
             if (wanted) {
                 await wantlistService.removeFromWantlist(connection, releaseId);
                 setWanted(false);
@@ -58,10 +48,7 @@ const RateAndCollect = ({ releaseId, existingEntry, inWantlist }: RateAndCollect
                 await wantlistService.addToWantlist(connection, releaseId);
                 setWanted(true);
             }
-            setWantlistStatus("saved");
-        } catch {
-            setWantlistStatus("error");
-        }
+        });
     };
 
     if (!user) {

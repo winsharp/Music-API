@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
-import { Alert, Button, Col, Container, Row } from "react-bootstrap";
+import { Alert, Container } from "react-bootstrap";
 import { discogsUserService } from "../services/discogsUserService";
 import { getCached, setCached } from "../services/discogsUserCache";
 import { useDiscogsConnection } from "../hooks/useDiscogsConnection";
-import MediaCard from "../components/MediaCard";
+import ReleaseGrid from "../components/ReleaseGrid";
 import CardGridSkeleton from "../components/skeletons/CardGridSkeleton";
 import type { CollectionRelease, WantlistItem } from "../types/discogsUser";
 
@@ -22,18 +22,10 @@ type SectionItem = (CollectionRelease | WantlistItem) & { key: number };
 export default function ProfileSectionPage() {
     const { username, section } = useParams<{ username: string; section: Section }>();
     const { connection } = useDiscogsConnection();
-    const navigate = useNavigate();
 
     const [items, setItems] = useState<SectionItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    const handleArtistClick = (e: React.MouseEvent, artistName: string) => {
-        // Stop the click from bubbling up to the surrounding card, which
-        // navigates to the release instead.
-        e.stopPropagation();
-        navigate(`/artist?name=${encodeURIComponent(artistName)}`);
-    };
 
     useEffect(() => {
         if (!username || !section) return;
@@ -112,38 +104,7 @@ export default function ProfileSectionPage() {
             ) : items.length === 0 ? (
                 <p>{emptyMessage}</p>
             ) : (
-                <Row xs={2} sm={3} md={4} lg={5} className="g-3">
-                    {items.map((item) => (
-                        <Col key={item.key}>
-                            <MediaCard
-                                thumb={item.basic_information.thumb}
-                                alt={item.basic_information.title}
-                                title={item.basic_information.title}
-                                onClick={() => navigate(`/release/${item.basic_information.id}`)}
-                            >
-                                {item.basic_information.artists?.[0] && (
-                                    <Button
-                                        variant="link"
-                                        className="p-0 text-start d-block mb-1 media-card-subtitle"
-                                        onClick={(e) => handleArtistClick(e, item.basic_information.artists![0].name)}
-                                    >
-                                        {item.basic_information.artists[0].name}
-                                    </Button>
-                                )}
-                                {showRating && (
-                                    <div>
-                                        {[1, 2, 3, 4, 5].map((n) => (
-                                            <span key={n} aria-hidden="true">
-                                                {item.rating >= n ? "★" : "☆"}
-                                            </span>
-                                        ))}
-                                        {section === "collection" && item.rating === 0 && <span> Not rated</span>}
-                                    </div>
-                                )}
-                            </MediaCard>
-                        </Col>
-                    ))}
-                </Row>
+                <ReleaseGrid items={items} getKey={(item) => item.key} showRating={showRating} />
             )}
         </Container>
     );
