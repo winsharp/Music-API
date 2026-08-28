@@ -9,7 +9,6 @@ export interface DiscogsUserProfile {
     location?: string;
     num_collection: number;
     num_wantlist: number;
-    num_lists: number;
     releases_rated: number;
     rating_avg: number;
 }
@@ -42,33 +41,6 @@ export interface CollectionRelease {
 export interface CollectionReleasesResponse {
     pagination: DiscogsPagination;
     releases: CollectionRelease[];
-}
-
-// A user-created list (separate from Collection/Wantlist), e.g. "Best Jazz
-// Albums of 1960s". Summaries don't include items; fetch by id for those.
-export interface DiscogsListSummary {
-    id: number;
-    name: string;
-    description?: string;
-    public: boolean;
-    image_url?: string;
-}
-
-export interface DiscogsListsResponse {
-    pagination: DiscogsPagination;
-    lists: DiscogsListSummary[];
-}
-
-export interface DiscogsListItem {
-    id: number;
-    type: "release" | "master" | "artist" | "label";
-    display_title: string;
-    image_url?: string;
-    uri?: string;
-}
-
-export interface DiscogsListDetail extends DiscogsListSummary {
-    items: DiscogsListItem[];
 }
 
 // A single release on a user's wantlist. Notes are only visible when
