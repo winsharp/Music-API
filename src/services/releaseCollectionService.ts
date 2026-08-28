@@ -49,15 +49,21 @@ export const releaseCollectionService = {
             }
         );
     },
-    // Checks whether a release is already in the user's collection (in the
-// default folder), so we don't create a duplicate entry on every page load.
-// Returns the existing instance_id/rating if found, or null if not.
+    // Checks whether a release is already in the user's collection (in ANY
+// folder, not just the default one — users can freely reorganize releases
+// into custom folders on discogs.com), so we don't create a duplicate entry
+// on every page load. Returns the existing instance_id/rating if found, or
+// null if not.
+//
+// NOTE: this is a different endpoint than addToCollection/rateRelease — it
+// has no folder segment in the path, since it searches the whole collection
+// rather than one folder.
     async findExistingEntry(
         connection: DiscogsConnection,
         releaseId: number
     ): Promise<{ instance_id: number; rating: number } | null> {
         const response = await axios.get(
-            `${BASE_URL}/users/${connection.discogsUsername}/collection/folders/${DEFAULT_FOLDER_ID}/releases/${releaseId}`,
+            `${BASE_URL}/users/${connection.discogsUsername}/collection/releases/${releaseId}`,
             {
                 headers: {
                     Authorization: authHeaderFor(connection.oauthToken, connection.oauthTokenSecret),

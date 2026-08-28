@@ -43,10 +43,10 @@ describe("releaseCollectionService", () => {
         expect(capturedBody).toEqual({ rating: "4" });
     });
 
-    it("finds an existing entry when the release is already in the collection", async () => {
+    it("finds an existing entry when the release is already in the collection, regardless of folder", async () => {
         server.use(
             http.get(
-                `${BASE_URL}/users/testuser/collection/folders/1/releases/8098759`,
+                `${BASE_URL}/users/testuser/collection/releases/8098759`,
                 () => {
                     return HttpResponse.json({
                         releases: [{ instance_id: 123456, rating: 4 }],
@@ -62,7 +62,7 @@ describe("releaseCollectionService", () => {
     it("returns null when the release is not in the collection", async () => {
         server.use(
             http.get(
-                `${BASE_URL}/users/testuser/collection/folders/1/releases/8098759`,
+                `${BASE_URL}/users/testuser/collection/releases/8098759`,
                 () => {
                     return HttpResponse.json({ releases: [] });
                 }
