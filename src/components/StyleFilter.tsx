@@ -1,6 +1,7 @@
 import SelectFilter from "./SelectFilter";
 import { DISCOGS_STYLES } from "../constants/styles";
 
+/** `SelectFilter` preconfigured for the "style" query param on `/browse`. */
 const StyleFilter = () => (
     <SelectFilter
         controlId="style-filter"

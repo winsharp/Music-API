@@ -4,8 +4,11 @@ import { Alert, Button, Form } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
 import CenteredFormCard from "../components/CenteredFormCard";
 
-// Lets a logged-in user edit their local app account (username/email/password).
-// This is separate from any linked Discogs account.
+/**
+ * Lets a logged-in user edit their local app account (username, email,
+ * password). This is separate from any linked Discogs account, which is
+ * managed from the Profile page instead (see `ConnectDiscogsButton`).
+ */
 export default function SettingsPage() {
     const { user, updateUser } = useAuth();
 

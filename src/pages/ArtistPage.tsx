@@ -9,6 +9,12 @@ import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { usePageParam } from "../hooks/usePageParam";
 import "../styles/catalogTable.css";
 
+/**
+ * Shows a Discogs artist's profile and a paginated table of their own
+ * releases. Reads the artist either by `?id=` (exact, used by links from
+ * the Release page) or `?name=` (fallback used by catalog links, resolved
+ * to an id via an artist search before the rest of the page loads).
+ */
 const ArtistPage = () => {
     const [searchParams] = useSearchParams();
     // /artist?id=<id> is exact (used by links from the Release page, which

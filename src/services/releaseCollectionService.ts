@@ -14,8 +14,10 @@ import { DISCOGS_BASE_URL as BASE_URL } from "./discogsConfig";
 const DEFAULT_FOLDER_ID = 1; // "Uncategorized" — the default writable folder
 
 export const releaseCollectionService = {
-    // Adds a release to the user's collection. Returns the new instance_id,
-    // which Discogs needs later to update the rating on this exact copy.
+    /**
+     * Adds a release to the user's collection. Returns the new instance_id,
+     * which Discogs needs later to update the rating on this exact copy.
+     */
     async addToCollection(
         connection: DiscogsConnection,
         releaseId: number
@@ -32,7 +34,7 @@ export const releaseCollectionService = {
         return response.data;
     },
 
-    // Updates the 0-5 rating on a release already sitting in the collection.
+    /** Updates the 0-5 rating on a release already sitting in the collection. */
     async rateRelease(
         connection: DiscogsConnection,
         releaseId: number,
@@ -49,15 +51,17 @@ export const releaseCollectionService = {
             }
         );
     },
-    // Checks whether a release is already in the user's collection (in ANY
-// folder, not just the default one — users can freely reorganize releases
-// into custom folders on discogs.com), so we don't create a duplicate entry
-// on every page load. Returns the existing instance_id/rating if found, or
-// null if not.
-//
-// NOTE: this is a different endpoint than addToCollection/rateRelease — it
-// has no folder segment in the path, since it searches the whole collection
-// rather than one folder.
+    /**
+     * Checks whether a release is already in the user's collection (in ANY
+     * folder, not just the default one — users can freely reorganize
+     * releases into custom folders on discogs.com), so we don't create a
+     * duplicate entry on every page load. Returns the existing
+     * instance_id/rating if found, or null if not.
+     *
+     * NOTE: this is a different endpoint than addToCollection/rateRelease —
+     * it has no folder segment in the path, since it searches the whole
+     * collection rather than one folder.
+     */
     async findExistingEntry(
         connection: DiscogsConnection,
         releaseId: number

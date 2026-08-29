@@ -5,6 +5,11 @@ import { Alert, Button, Form } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
 import CenteredFormCard from "../components/CenteredFormCard";
 
+/**
+ * Login form. On success, redirects back to wherever `ProtectedRoute` sent
+ * the user from (via `location.state.from`), or the homepage if there
+ * wasn't one.
+ */
 export default function LoginPage() {
     const { login } = useAuth();
     const navigate = useNavigate();

@@ -8,6 +8,11 @@ interface FeaturedReleaseSectionProps {
     getStat: (release: DiscogsReleaseDetail) => string;
 }
 
+/**
+ * A titled row of `FeaturedReleaseCard`s for the homepage (e.g. "Most
+ * Collected"). `getStat` derives the per-release stat line shown on each
+ * card. Renders nothing if `releases` is empty.
+ */
 const FeaturedReleaseSection = ({ title, releases, getStat }: FeaturedReleaseSectionProps) => {
     if (!releases.length) return null;
 

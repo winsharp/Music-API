@@ -4,6 +4,14 @@ import { useAuth } from "../hooks/useAuth";
 import { discogsAuthStorage } from "../services/discogsAuthStorage";
 import { discogsOAuthService } from "../services/discogsOAuthService";
 
+/**
+ * Landing page for Discogs' OAuth redirect (`/discogs/callback`). Reads the
+ * `oauth_token`/`oauth_verifier` query params Discogs appends, matches them
+ * against the pending request token stashed by `useDiscogsConnection`'s
+ * `connect()`, exchanges them for a permanent access token, and saves the
+ * resulting connection before redirecting to the user's profile. Shows an
+ * error message if the link is invalid/expired or the user isn't logged in.
+ */
 export default function DiscogsCallbackPage() {
     const { user } = useAuth();
     const [searchParams] = useSearchParams();

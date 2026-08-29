@@ -12,6 +12,7 @@ interface CacheEntry<T> {
 
 const cache = new Map<string, CacheEntry<unknown>>();
 
+/** Returns the cached value for `key`, or `undefined` if missing/expired. */
 export function getCached<T>(key: string): T | undefined {
     const entry = cache.get(key);
     if (!entry) return undefined;
@@ -22,11 +23,12 @@ export function getCached<T>(key: string): T | undefined {
     return entry.data as T;
 }
 
+/** Stores `data` under `key`, expiring it after {@link TTL_MS}. */
 export function setCached<T>(key: string, data: T): void {
     cache.set(key, { data, expiresAt: Date.now() + TTL_MS });
 }
 
-// Exposed for tests, so each test starts with a clean cache.
+/** Empties the cache. Exposed for tests, so each test starts with a clean cache. */
 export function clearCache(): void {
     cache.clear();
 }

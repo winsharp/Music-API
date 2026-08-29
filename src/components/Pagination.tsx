@@ -8,6 +8,12 @@ interface PaginationProps {
     basePath?: string;
 }
 
+/**
+ * Previous/current/Next pager that navigates by setting/removing the `page`
+ * query param on `basePath`, preserving any other existing search params
+ * (e.g. genre/style filters, search query). Renders nothing when there's
+ * only one page.
+ */
 const Pagination = ({ currentPage, totalPages, basePath = "/browse" }: PaginationProps) => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();

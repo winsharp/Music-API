@@ -12,6 +12,14 @@ import RateAndCollect from "../components/RateAndCollect";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import "../styles/mediaThumb.css";
 
+/**
+ * Full detail page for a single release (`/release/:id`): cover art,
+ * artists, year, genres/styles, `RateAndCollect` controls, and tracklist.
+ * If the logged-in user has a linked Discogs connection, pre-fetches
+ * whether this release is already in their collection/wantlist so those
+ * controls reflect reality (failing silently, since the buttons still work
+ * without this).
+ */
 const ReleasePage = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();

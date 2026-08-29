@@ -1,9 +1,11 @@
 import { Card, Col, ListGroup, Placeholder, Row } from "react-bootstrap";
 import "../../styles/mediaThumb.css";
 
-// Mirrors the real ReleasePage layout: a card with the cover image and
-// title/artist/year/genre info side by side, then a second card with a
-// numbered tracklist below.
+/**
+ * Loading placeholder mirroring the real ReleasePage layout: a card with the
+ * cover image and title/artist/year/genre info side by side, then a second
+ * card with a numbered tracklist below.
+ */
 const ReleaseDetailSkeleton = () => (
     <>
         <Card className="p-3 p-md-4 mb-4">

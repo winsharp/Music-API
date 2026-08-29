@@ -8,6 +8,11 @@ import SearchBox from "../components/SearchBox";
 import { useAuth } from "../hooks/useAuth";
 import "./HomePage.css";
 
+/**
+ * Landing page: hero section with the app's search box and quick actions,
+ * plus curated "Most Collected" / "Most Valuable" / "Best Selling by Week"
+ * sections sourced from the static snapshot in `homeService.ts`.
+ */
 const HomePage = () => {
     // getFeaturedReleases() is a static, local snapshot (see homeService.ts) -
     // it never makes a network call and can't fail, so there's no

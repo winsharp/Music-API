@@ -12,9 +12,11 @@ import type { DiscogsConnection } from "../types/discogsOAuth";
 import { authHeaderFor } from "./discogsOAuthService";
 import { DISCOGS_BASE_URL as BASE_URL, DISCOGS_TOKEN as TOKEN } from "./discogsConfig";
 
-// If the caller has a linked OAuth connection for this exact username, sign
-// the request with it instead of the app's anonymous token — that's what
-// lets private data (collection, wantlist) show up for their owner.
+/**
+ * If the caller has a linked OAuth connection for this exact username, sign
+ * the request with it instead of the app's anonymous token — that's what
+ * lets private data (collection, wantlist) show up for their owner.
+ */
 function authConfig(username: string, connection?: DiscogsConnection | null) {
     if (connection && connection.discogsUsername === username) {
         return { headers: { Authorization: authHeaderFor(connection.oauthToken, connection.oauthTokenSecret) } };
@@ -23,6 +25,7 @@ function authConfig(username: string, connection?: DiscogsConnection | null) {
 }
 
 export const discogsUserService = {
+    /** Fetches a Discogs user's public profile. */
     async getProfile(username: string): Promise<DiscogsUserProfile> {
         const response = await axios.get<DiscogsUserProfile>(`${BASE_URL}/users/${username}`, {
             params: { token: TOKEN },
@@ -30,8 +33,12 @@ export const discogsUserService = {
         return response.data;
     },
 
-    // Folder 0 is Discogs' built-in "All" folder. For a public collection,
-    // this is viewable without the owner being authenticated.
+    /**
+     * Fetches a user's collection releases. Folder 0 is Discogs' built-in
+     * "All" folder. For a public collection, this is viewable without the
+     * owner being authenticated; pass `connection` to also see a private
+     * collection when it belongs to the connected user.
+     */
     async getCollection(username: string, connection?: DiscogsConnection | null): Promise<CollectionReleasesResponse> {
         const response = await axios.get<CollectionReleasesResponse>(
             `${BASE_URL}/users/${username}/collection/folders/0/releases`,
@@ -40,8 +47,10 @@ export const discogsUserService = {
         return response.data;
     },
 
-    // Releases the user wants but doesn't own. Private wantlists only show
-    // up when authenticated as the owner.
+    /**
+     * Fetches releases the user wants but doesn't own. Private wantlists
+     * only show up when authenticated as the owner (via `connection`).
+     */
     async getWantlist(username: string, connection?: DiscogsConnection | null): Promise<WantlistResponse> {
         const response = await axios.get<WantlistResponse>(
             `${BASE_URL}/users/${username}/wants`,

@@ -21,6 +21,13 @@ const SECTION_TITLES: Record<Section, string> = {
 
 type SectionItem = (CollectionRelease | WantlistItem) & { key: number };
 
+/**
+ * "View All" page for one section of a profile (`/profile/:username/:section`,
+ * where `section` is "rated" | "collection" | "wantlist") — the full-list
+ * counterpart to the truncated sections shown on `ProfilePage`. Shares the
+ * same caching, mock-profile fallback, and private-data error handling as
+ * `ProfilePage` (see its docs for details).
+ */
 export default function ProfileSectionPage() {
     const { username, section } = useParams<{ username: string; section: Section }>();
     const { user } = useAuth();

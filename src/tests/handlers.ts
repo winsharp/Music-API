@@ -1,3 +1,7 @@
+// Default MSW (Mock Service Worker) request handlers, installed for every
+// test via `server.ts`/`setup.ts`. Individual test files can override these
+// per-test with `server.use(...)` for other endpoints/status codes; this
+// file only needs to cover requests that don't care about the response.
 import { http, HttpResponse } from "msw";
 import { mockSearchResults } from "./search.mock";
 

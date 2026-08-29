@@ -1,4 +1,5 @@
-//data file to prevent code duplication
+// Shared mock SearchResult fixtures, used by searchService/SearchPage tests
+// (and MSW's default handler in handlers.ts) to avoid duplicating this data.
 import type { SearchResult } from '../types/search';
 
 export const mockSearchResults: SearchResult[] = [

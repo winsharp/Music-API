@@ -1,3 +1,8 @@
+// Local, client-only account system for the app's own login (separate from
+// Discogs OAuth — see discogsOAuthService.ts). Accounts and the active
+// session are persisted to localStorage; passwords are never stored in
+// plaintext, only as bcrypt hashes.
+
 import bcrypt from "bcryptjs";
 import type { User } from "../types/user";
 
@@ -28,6 +33,10 @@ function toPublicUser(stored: StoredUser): User {
 }
 
 export const authService = {
+    /**
+     * Creates a new account, hashing the password with bcrypt, then logs the
+     * new user in. Throws if the username or email is already taken.
+     */
     async register(user: Omit<User, "id">, password: string): Promise<User> {
         const users = readUsers();
         if (users.some((u) => u.username.toLowerCase() === user.username.toLowerCase())) {
@@ -45,6 +54,12 @@ export const authService = {
         return toPublicUser(newUser);
     },
 
+    /**
+     * Verifies credentials against the stored account and, on success,
+     * starts a session. Throws a generic "Invalid username or password."
+     * error for both an unknown username and a wrong password, to avoid
+     * leaking which one was incorrect.
+     */
     async login(username: string, password: string): Promise<User> {
         const users = readUsers();
         const match = users.find((u) => u.username.toLowerCase() === username.toLowerCase());
@@ -57,10 +72,12 @@ export const authService = {
         return toPublicUser(match);
     },
 
+    /** Ends the current session. Does not delete the account itself. */
     logout(): void {
         localStorage.removeItem(SESSION_KEY);
     },
 
+    /** Returns the currently logged-in user (from the stored session id), or `null`. */
     getSessionUser(): User | null {
         const sessionId = localStorage.getItem(SESSION_KEY);
         if (!sessionId) return null;
@@ -68,6 +85,12 @@ export const authService = {
         return match ? toPublicUser(match) : null;
     },
 
+    /**
+     * Updates a user's username/email and, optionally, their password.
+     * Requires `currentPassword` to match the stored hash. Throws if the
+     * user doesn't exist, the current password is wrong, or the new
+     * username/email is already taken by another account.
+     */
     async updateUser(
         userId: string,
         updates: { username: string; email: string },
