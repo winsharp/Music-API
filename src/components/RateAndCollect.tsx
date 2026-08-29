@@ -13,6 +13,13 @@ interface RateAndCollectProps {
     inWantlist?: boolean;
 }
 
+/**
+ * Release-page controls for adding a release to the logged-in user's
+ * Discogs collection, rating it (once added), and toggling it on their
+ * wantlist. Falls back to a prompt to log in / connect Discogs when those
+ * prerequisites aren't met, since all of these actions require a linked
+ * Discogs OAuth connection.
+ */
 const RateAndCollect = ({ releaseId, existingEntry, inWantlist }: RateAndCollectProps) => {
     const { user } = useAuth();
     const location = useLocation();

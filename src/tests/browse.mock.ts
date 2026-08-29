@@ -1,4 +1,5 @@
-// data file to prevent code duplication
+// Shared mock SearchResult fixtures, used by browseService/BrowseCatalogPage
+// tests to avoid duplicating this data.
 import type { SearchResult } from '../types/search';
 
 export const mockBrowseResults: SearchResult[] = [

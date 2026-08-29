@@ -4,7 +4,7 @@ interface ArtistReleasesTableSkeletonProps {
     rows?: number;
 }
 
-// Mirrors the real releases <Table> on ArtistPage: Title, Year columns.
+/** Loading placeholder mirroring the real releases `<Table>` on ArtistPage: Title, Year columns. */
 const ArtistReleasesTableSkeleton = ({ rows = 8 }: ArtistReleasesTableSkeletonProps) => (
     <div className="table-responsive">
         <Table striped hover className="browse-catalog-table align-middle">

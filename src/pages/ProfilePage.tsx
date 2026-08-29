@@ -12,6 +12,26 @@ import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import type { DiscogsUserProfile, CollectionRelease, WantlistItem } from "../types/discogsUser";
 import { mockProfiles } from "../tests/mockProfiles";
 
+/**
+ * Public Discogs user profile at `/profile/:username`: avatar/stats header,
+ * plus Recently Rated / Collection / Wantlist sections (each capped to
+ * `SECTION_PAGE_SIZE` items with a "View All" link to `ProfileSectionPage`).
+ *
+ * Handles a few edge cases beyond a simple fetch-and-render:
+ * - When viewing your own profile before linking a real Discogs account,
+ *   `/profile` (via `MyProfileRedirect`) guesses your app username is your
+ *   Discogs username; if that guess 404s, this shows a "connect Discogs"
+ *   prompt instead of a dead-end error.
+ * - A private collection/wantlist 401/403s per-section rather than failing
+ *   the whole page — each section shows its own "this is private" message.
+ * - A handful of demo `mockProfiles` (see `src/tests/mockProfiles.ts`) can
+ *   stand in for a real profile's data (but never for the logged-in user's
+ *   own profile) so rated-releases lists can be demoed without needing a
+ *   live Discogs account with real data.
+ * - Profile/collection/wantlist data is cached briefly (`discogsUserCache`)
+ *   so navigating to a "View All" page and back doesn't re-fetch/re-show a
+ *   loading state for data just fetched.
+ */
 export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
     const { user } = useAuth();

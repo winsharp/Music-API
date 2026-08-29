@@ -5,6 +5,11 @@ import { Alert, Button, Form } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
 import CenteredFormCard from "../components/CenteredFormCard";
 
+/**
+ * Account creation form. On success, logs the new user in and redirects
+ * back to wherever `ProtectedRoute` sent them from (via
+ * `location.state.from`), or the homepage if there wasn't one.
+ */
 export default function RegisterPage() {
     const { register } = useAuth();
     const navigate = useNavigate();

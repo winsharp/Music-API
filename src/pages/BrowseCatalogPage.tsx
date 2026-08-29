@@ -11,6 +11,11 @@ import BrowseCatalogTableSkeleton from "../components/skeletons/BrowseCatalogTab
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { usePageParam } from "../hooks/usePageParam";
 
+/**
+ * Paginated Discogs catalog browser, filterable by genre and/or style via
+ * the `genre`/`style` query params (see `GenreFilter`/`StyleFilter`). Unlike
+ * `SearchPage`, this lists releases without requiring a text query.
+ */
 const BrowseCatalogPage = () => {
     const [searchParams] = useSearchParams();
     const genre = searchParams.get("genre") || undefined;

@@ -4,8 +4,10 @@ interface BrowseCatalogTableSkeletonProps {
     rows?: number;
 }
 
-// Mirrors the real <Table> in BrowseCatalogPage: Title (image + text),
-// Artist, Year, Genre, Rate / Collect columns.
+/**
+ * Loading placeholder mirroring the real `<Table>` in BrowseCatalogPage:
+ * Title (image + text), Artist, Year, Genre, Rate / Collect columns.
+ */
 const BrowseCatalogTableSkeleton = ({ rows = 8 }: BrowseCatalogTableSkeletonProps) => (
     <div className="table-responsive">
         <Table striped hover className="browse-catalog-table align-middle">

@@ -9,6 +9,11 @@ import Pagination from "../components/Pagination";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { usePageParam } from "../hooks/usePageParam";
 
+/**
+ * Text search results page, reading `q` (query) and `genre` from the URL
+ * (populated by `SearchBox`/`GenreFilter`). Unlike `BrowseCatalogPage`, this
+ * requires a query and shows nothing until one is present.
+ */
 const SearchPage = () =>{
     const [searchParams] = useSearchParams();
     const query = searchParams.get("q")|| "";

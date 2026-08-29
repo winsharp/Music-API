@@ -1,3 +1,5 @@
+// Canned demo profiles rendered by ProfilePage/ProfileSectionPage in place
+// of a real Discogs account (see MockProfile's docs in ../types/mockProfile.ts).
 import type { MockProfile } from "../types/mockProfile";
 
 export const mockProfiles: MockProfile[] = [

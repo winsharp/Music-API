@@ -16,22 +16,27 @@ const CONSUMER_KEY = import.meta.env.VITE_DISCOGS_CONSUMER_KEY;
 const CONSUMER_SECRET = import.meta.env.VITE_DISCOGS_CONSUMER_SECRET;
 const USER_AGENT = "MusicApi/1.0";
 
+/** Generates a random OAuth nonce string. */
 function nonce(): string {
     return Math.random().toString(36).slice(2);
 }
 
+/** Current Unix timestamp (seconds), as required by the OAuth spec. */
 function timestamp(): string {
     return String(Math.floor(Date.now() / 1000));
 }
 
+/** Serializes OAuth parameters into an `OAuth ...` Authorization header value. */
 function buildAuthHeader(params: Record<string, string>): string {
     return "OAuth " + Object.entries(params)
         .map(([key, value]) => `${key}="${encodeURIComponent(value)}"`)
         .join(", ");
 }
 
-// Builds an Authorization header for any authenticated Discogs request
-// (beyond just the token endpoints) using an already-issued access token.
+/**
+ * Builds an Authorization header for any authenticated Discogs request
+ * (beyond just the token endpoints) using an already-issued access token.
+ */
 export function authHeaderFor(accessToken: string, accessTokenSecret: string): string {
     return buildAuthHeader({
         oauth_consumer_key: CONSUMER_KEY,
@@ -44,16 +49,19 @@ export function authHeaderFor(accessToken: string, accessTokenSecret: string): s
 }
 
 export const discogsOAuthService = {
-    // Step 1: get a short-lived request token and send the user to Discogs to approve it.
-    //
-    // NOTE: this sends the oauth_* fields as query params instead of an
-    // Authorization header. Discogs' CORS config for /oauth/request_token
-    // and /oauth/access_token only allows HEAD/OPTIONS on preflight (no
-    // GET!), so a browser blocks the real request before it's even sent if
-    // we use a custom header here. Query params keep this a "simple"
-    // cross-origin request (no custom headers), which skips preflight
-    // entirely. /oauth/identity and other data endpoints don't have this
-    // problem, so they still use the Authorization header below.
+    /**
+     * Step 1: get a short-lived request token and send the user to Discogs
+     * to approve it.
+     *
+     * NOTE: this sends the oauth_* fields as query params instead of an
+     * Authorization header. Discogs' CORS config for /oauth/request_token
+     * and /oauth/access_token only allows HEAD/OPTIONS on preflight (no
+     * GET!), so a browser blocks the real request before it's even sent if
+     * we use a custom header here. Query params keep this a "simple"
+     * cross-origin request (no custom headers), which skips preflight
+     * entirely. /oauth/identity and other data endpoints don't have this
+     * problem, so they still use the Authorization header below.
+     */
     async getRequestToken(callbackUrl: string): Promise<RequestToken> {
         const response = await axios.get<string>(`${BASE_URL}/oauth/request_token`, {
             params: {
@@ -73,12 +81,16 @@ export const discogsOAuthService = {
         };
     },
 
+    /** Builds the URL to redirect the user to so they can approve the request token. */
     getAuthorizeUrl(requestToken: string): string {
         return `https://www.discogs.com/oauth/authorize?oauth_token=${requestToken}`;
     },
 
-    // Step 2: exchange the user-approved request token for a permanent access token.
-    // Same CORS caveat as getRequestToken above — query params, not a header.
+    /**
+     * Step 2: exchange the user-approved request token for a permanent
+     * access token. Same CORS caveat as `getRequestToken` above — query
+     * params, not a header.
+     */
     async getAccessToken(requestToken: string, requestTokenSecret: string, verifier: string): Promise<AccessToken> {
         const response = await axios.get<string>(`${BASE_URL}/oauth/access_token`, {
             params: {
@@ -99,7 +111,7 @@ export const discogsOAuthService = {
         };
     },
 
-    // Confirms which Discogs account the access token belongs to.
+    /** Confirms which Discogs account the access token belongs to. */
     async getIdentity(accessToken: string, accessTokenSecret: string): Promise<DiscogsIdentity> {
         const response = await axios.get<DiscogsIdentity>(`${BASE_URL}/oauth/identity`, {
             headers: {

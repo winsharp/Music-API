@@ -1,8 +1,11 @@
 import { Placeholder } from "react-bootstrap";
 import CardGridSkeleton from "./CardGridSkeleton";
 
-// Mirrors the real ProfilePage layout: avatar/name/stats header, then the
-// Recently Rated, Collection and Wantlist sections.
+/**
+ * Loading placeholder mirroring the real ProfilePage layout:
+ * avatar/name/stats header, then the Recently Rated, Collection and
+ * Wantlist sections.
+ */
 const ProfilePageSkeleton = () => (
     <>
         <section className="text-center mb-4">

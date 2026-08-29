@@ -7,6 +7,13 @@ interface AlbumListItemProps {
     album: SearchResult;
 }
 
+/**
+ * Renders one search/browse result as a table row: thumbnail + title
+ * (clickable, navigates to the release page), artist (clickable, navigates
+ * to the artist page, unless it's the "Unknown Artist" placeholder), year,
+ * and genre. Artist/year/genre collapse into a summary line under the title
+ * on narrow (`< sm`) screens instead of their own columns.
+ */
 const AlbumListItem = ({ album }: AlbumListItemProps) => {
     const { artist, title } = parseAlbumTitle(album.title);
     const navigate = useNavigate();

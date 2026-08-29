@@ -1,15 +1,15 @@
-//Search box component
-//
-import { useState} from "react";
-import {useNavigate} from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Form, InputGroup, Button } from "react-bootstrap";
 
-const SearchBox = ()=>{
-    //setQuery function updates memory which memory is represented as query.
-    //query is empty until setQuery updates it
-    //when setQuery gets used, the component gets a new value
+/**
+ * The search input shown in the NavBar. On submit, navigates to
+ * `/search?q=...` with the trimmed query (ignores empty/whitespace-only
+ * submissions); `SearchPage` reads the `q` param and performs the actual
+ * Discogs search.
+ */
+const SearchBox = () => {
     const [query, setQuery] = useState("");
-    //React Router. gets a function to auto change the url. after user submits we'll send them to /search
     const navigate = useNavigate();
 
     const handleSubmit = (e: React.FormEvent)=>{

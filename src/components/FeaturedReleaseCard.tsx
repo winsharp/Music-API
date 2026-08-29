@@ -10,6 +10,12 @@ interface FeaturedReleaseCardProps {
     stat: string;
 }
 
+/**
+ * A single card in the homepage's featured-releases carousels (Most
+ * Collected / Most Valuable / Best Selling). Wraps `MediaCard` with the
+ * release's primary artist and a caller-provided `stat` line (e.g. a
+ * have/want count or price), and navigates to the release page on click.
+ */
 const FeaturedReleaseCard = ({ release, stat }: FeaturedReleaseCardProps) => {
     const artist = release.artists?.[0]?.name ?? UNKNOWN_ARTIST;
     const navigate = useNavigate();

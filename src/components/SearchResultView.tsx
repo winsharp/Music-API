@@ -9,6 +9,13 @@ interface SearchResultViewProps {
     result: SearchResult;
 }
 
+/**
+ * A single Discogs search result as a `MediaCard`: title/artist parsed out
+ * of Discogs' combined "Artist - Title" string, plus year and genre badges.
+ * Genre badges intentionally don't navigate anywhere (there's no per-genre
+ * page tied to search results) — their click handler just stops it from
+ * bubbling up to the card's own release-navigation click.
+ */
 const SearchResultView = ({ result }: SearchResultViewProps) => {
     const navigate = useNavigate();
     const { artist, title } = parseAlbumTitle(result.title);

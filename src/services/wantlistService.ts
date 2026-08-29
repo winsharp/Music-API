@@ -7,8 +7,10 @@ import { authHeaderFor } from "./discogsOAuthService";
 import { DISCOGS_BASE_URL as BASE_URL } from "./discogsConfig";
 
 export const wantlistService = {
-    // Adds a release to the user's wantlist. Idempotent on Discogs' side —
-    // calling it again for a release already on the wantlist just updates it.
+    /**
+     * Adds a release to the user's wantlist. Idempotent on Discogs' side —
+     * calling it again for a release already on the wantlist just updates it.
+     */
     async addToWantlist(connection: DiscogsConnection, releaseId: number): Promise<void> {
         await axios.put(
             `${BASE_URL}/users/${connection.discogsUsername}/wants/${releaseId}`,
@@ -21,7 +23,7 @@ export const wantlistService = {
         );
     },
 
-    // Removes a release from the user's wantlist.
+    /** Removes a release from the user's wantlist. */
     async removeFromWantlist(connection: DiscogsConnection, releaseId: number): Promise<void> {
         await axios.delete(
             `${BASE_URL}/users/${connection.discogsUsername}/wants/${releaseId}`,

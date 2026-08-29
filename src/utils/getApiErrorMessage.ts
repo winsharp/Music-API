@@ -1,8 +1,10 @@
 import axios from "axios";
 
-// Shared axios error -> user-facing message mapping, used by the catalog
-// pages (Browse, Artist, Release) so each doesn't reimplement the same
-// status-code branching.
+/**
+ * Shared axios error -> user-facing message mapping, used by the catalog
+ * pages (Browse, Artist, Release) so each doesn't reimplement the same
+ * status-code branching.
+ */
 export const getApiErrorMessage = (err: unknown): string => {
     if (!axios.isAxiosError(err)) {
         return "Something went wrong fetching results. Please try again.";

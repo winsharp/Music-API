@@ -13,11 +13,15 @@ interface BrowseParams {
     page?: number;
 }
 
+/**
+ * Browses Discogs releases by genre/style without a search query, paginated.
+ *
+ * No explicit `sort` here on purpose: Discogs' own default ordering surfaces
+ * well-known releases first. Forcing sort=year or sort=title instead skews
+ * results toward obscure new pressings or an alphabetical-collation artifact
+ * (checked both against the live API before settling on this).
+ */
 export const browseReleases = async ({ genre, style, page }: BrowseParams): Promise<SearchResponse> => {
-    // No explicit `sort` here on purpose: Discogs' own default ordering surfaces
-    // well-known releases first. Forcing sort=year or sort=title instead skews
-    // results toward obscure new pressings or an alphabetical-collation artifact
-    // (checked both against the live API before settling on this).
     const response = await axios.get<SearchResponse>(`${BASE_URL}/database/search`, {
         params: {
             type: "release",

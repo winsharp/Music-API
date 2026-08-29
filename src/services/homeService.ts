@@ -219,7 +219,12 @@ const MOST_VALUABLE: DiscogsReleaseDetail[] = [
     },
 ];
 
-// No network calls at all - this is a static snapshot (see header comment).
+/**
+ * Returns the curated "Most Collected" / "Most Valuable" / "Best Selling"
+ * lists for the homepage. No network calls at all — this is a static
+ * snapshot (see the module-level comment above for why, and how to refresh
+ * it).
+ */
 export const getFeaturedReleases = async (): Promise<FeaturedReleases> => {
     return {
         mostCollected: MOST_COLLECTED,

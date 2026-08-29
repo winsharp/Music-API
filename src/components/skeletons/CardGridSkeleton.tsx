@@ -7,11 +7,14 @@ interface CardGridSkeletonProps {
     sm?: number;
     md?: number;
     lg?: number;
-    // Search result cards show a row of genre badges below the text; the
-    // other card grids (collection, wantlist, recently rated) don't.
+    /**
+     * Search result cards show a row of genre badges below the text; the
+     * other card grids (collection, wantlist, recently rated) don't.
+     */
     showBadgeRow?: boolean;
 }
 
+/** Loading placeholder for a responsive grid of `MediaCard`s. */
 const CardGridSkeleton = ({
     count = 8,
     xs = 2,
