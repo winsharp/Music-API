@@ -12,6 +12,7 @@ import MyProfileRedirect from './pages/MyProfileRedirect'
 import SettingsPage from './pages/SettingsPage'
 import DiscogsCallbackPage from './pages/DiscogsCallbackPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import GuestRoute from './components/GuestRoute'
 import NavBar from './components/NavBar'
 import { AuthProvider } from './contexts/AuthContext'
 
@@ -26,8 +27,22 @@ function App() {
           <Route path="/browse" element={<BrowseCatalogPage />} />
           <Route path="/artist" element={<ArtistPage />} />
           <Route path="/release/:id" element={<ReleasePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route
+              path="/login"
+              element={
+                <GuestRoute>
+                  <LoginPage />
+                </GuestRoute>
+              }
+          />
+          <Route
+              path="/register"
+              element={
+                <GuestRoute>
+                  <RegisterPage />
+                </GuestRoute>
+              }
+          />
           <Route
               path="/profile"
               element={
