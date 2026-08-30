@@ -79,7 +79,7 @@ Key architectural pieces:
 - **MSW (Mock Service Worker)** — mocks Discogs API responses in tests
 - **ESLint** + **typescript-eslint** — linting
 
-## Data / "Database" Design
+## Data Design
 
 This project has no dedicated backend database. Data lives in two places:
 
