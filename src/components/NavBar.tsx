@@ -21,8 +21,9 @@ const NavBar = () => {
     return (
         <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect>
             <Container fluid>
-                <Navbar.Brand as={Link} to="/">
-                    Music API
+                <Navbar.Brand as={Link} to="/" aria-label="DiscoGusto home">
+                    <span style={{ color: "var(--text-h)" }}>Disco</span>
+                    <span style={{ color: "var(--accent)" }}>Gusto</span>
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="main-navbar" />
                 <Navbar.Collapse id="main-navbar">
