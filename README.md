@@ -149,7 +149,6 @@ Endpoints under `/users/*` and the collection/wantlist mutation endpoints requir
 
    Get a personal access token and register an app (for the consumer key/secret) at [discogs.com/settings/developers](https://www.discogs.com/settings/developers).
 
-   > **Note:** the OAuth consumer secret ships in the client bundle with this setup, which is acceptable for a training project but not for production — a real deployment should proxy Discogs OAuth through a backend instead.
 
 ## Execution
 
@@ -182,7 +181,7 @@ Test files live next to the code they cover (e.g. `NavBar.tsx` / `NavBar.test.ts
 ## Known Limitations
 
 - **No real backend / accounts aren't portable.** Local accounts, sessions, and Discogs-connection links live only in the current browser's `localStorage` — they don't sync across devices/browsers and are wiped if site data is cleared.
-- **OAuth consumer secret ships client-side.** The Discogs OAuth 1.0a flow is implemented entirely in the browser, which means `VITE_DISCOGS_CONSUMER_SECRET` is bundled into the client. This is an accepted tradeoff for a training project, not something to reuse in production — a real deployment should proxy the OAuth handshake through a backend.
+- **OAuth consumer secret ships client-side.** The Discogs OAuth 1.0a flow is implemented entirely in the browser, which means `VITE_DISCOGS_CONSUMER_SECRET` is bundled into the client.
 - **Home page stats are a static snapshot**, not live data. Discogs has no "trending"/charts endpoint, and calling `GET /releases/{id}` for every featured release on each visit isn't practical, so `homeService.ts` ships a hand-picked, hardcoded set of releases with stats captured on 2026-08-26 — they will drift out of date over time.
 - **No custom/user-created lists.** Only Discogs' own collection and wantlist are supported; there's no app-specific list feature (e.g. custom playlists).
 - **Ambiguous artist name resolution.** Resolving a catalog row's artist name to a Discogs artist id (`findArtistIdByName`) just takes the first search match, so artists sharing a name (which Discogs itself disambiguates with suffixes like "Rush (2)") can occasionally resolve to the wrong profile.
