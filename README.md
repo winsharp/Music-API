@@ -197,7 +197,3 @@ Test files live next to the code they cover (e.g. `NavBar.tsx` / `NavBar.test.ts
 | Winona | [@winsharp](https://github.com/winsharp) | Album (release) page, browse catalog feature, tests, peer reviews |
 | Heriberto | [@betohhh707](https://github.com/betohhh707) | Search feature, profile mock data, tests, peer reviews |
 
-## Additional Documentation
-
-- [Branch & feature file structure / Git workflow](appworkflowandstructure.md)
-- [Project TODO / user stories](TODO.md)
