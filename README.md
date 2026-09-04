@@ -26,7 +26,7 @@ Users can:
 - Rate releases and add them to their Discogs collection or wantlist directly from the app.
 - View any user's public profile — their Discogs collection and wantlist — and manage their own account settings.
 
-Browsing (home, search, browse catalog, artist, and release pages) is open to everyone. Logging in is only required to rate a release or add it to a collection/wantlist, since those actions write to a real Discogs account.
+Browsing (home, search, browse catalog, artist, and release pages) is open to all users. Logging in is only required to rate a release or add it to a collection/wantlist, since those actions write to a real Discogs account.
 
 ## Features
 
